@@ -23,7 +23,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Accueil',
+          title: 'Home',
           tabBarIcon: ({ color, size }) => (
             <Home color={color} size={size} />
           ),
@@ -32,7 +32,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="packages"
         options={{
-          title: 'Forfaits',
+          title: 'Packages',
           tabBarIcon: ({ color, size }) => (
             <Package color={color} size={size} />
           ),
@@ -41,7 +41,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="transactions"
         options={{
-          title: 'Historique',
+          title: 'History',
           tabBarIcon: ({ color, size }) => (
             <Clock color={color} size={size} />
           ),
@@ -50,7 +50,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Profil',
+          title: 'Profile',
           tabBarIcon: ({ color, size }) => (
             <User color={color} size={size} />
           ),

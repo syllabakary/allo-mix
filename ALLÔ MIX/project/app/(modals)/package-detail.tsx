@@ -221,7 +221,7 @@ export default function PackageDetailScreen() {
           
           {packageData.popular && (
             <View style={styles.popularBadge}>
-              <Text style={styles.popularText}>Populair</Text>
+              <Text style={styles.popularText}>Popular</Text>
             </View>
           )}
         </View>
@@ -238,7 +238,7 @@ export default function PackageDetailScreen() {
             
             <View style={styles.featureItem}>
               <Text style={styles.featureValue}>{packageData.calls}</Text>
-              <Text style={styles.featureLabel}>Appels</Text>
+              <Text style={styles.featureLabel}>Calls</Text>
             </View>
             
             <View style={styles.featureItem}>
@@ -248,7 +248,7 @@ export default function PackageDetailScreen() {
             
             <View style={styles.featureItem}>
               <Text style={styles.featureValue}>{packageData.validity}</Text>
-              <Text style={styles.featureLabel}>Valider</Text>
+              <Text style={styles.featureLabel}>Validity</Text>
             </View>
           </View>
           

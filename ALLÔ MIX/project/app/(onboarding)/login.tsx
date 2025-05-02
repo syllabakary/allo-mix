@@ -1,10 +1,18 @@
-import { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { useState, useRef } from 'react';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, Alert } from 'react-native';
 import { router } from 'expo-router';
 import Colors from '@/constants/Colors';
 import Layout from '@/constants/Layout';
-import FontSizes from '@/constants/FontSizes';
 import { AtSign, Lock, ArrowRight, Phone } from 'lucide-react-native';
+
+// Define FontSizes that were missing in the original code
+const FontSizes = {
+  md: 14,
+  lg: 16,
+  xl: 18,
+  xxl: 24,
+  h2: 28
+};
 
 export default function LoginScreen() {
   const [isLogin, setIsLogin] = useState(true);
@@ -13,19 +21,43 @@ export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [otpSent, setOtpSent] = useState(false);
-  const [otp, setOtp] = useState('');
+  const [otp, setOtp] = useState(['', '', '', '']);
+  
+  // Refs for OTP inputs to allow automatic focus on next input
+  const otpInputRefs = useRef([]);
 
   const handleAuthentication = () => {
     if (otpSent) {
+      // Validate OTP
+      const otpValue = otp.join('');
+      if (otpValue.length !== 4) {
+        Alert.alert("Code incomplet", "Veuillez entrer les 4 chiffres du code OTP");
+        return;
+      }
+      
+      // Navigation corrected to the home page in the tab structure
       router.replace('/(tabs)');
       return;
     }
     
-    if (isLogin) {
-      setOtpSent(true);
-    } else {
-      setOtpSent(true);
+    // Simple validation before sending OTP
+    if (phoneMethod && phone.trim().length < 8) {
+      Alert.alert("Numéro invalide", "Veuillez entrer un numéro de téléphone valide");
+      return;
     }
+    
+    if (!phoneMethod && (!email.includes('@') || email.trim().length < 5)) {
+      Alert.alert("Email invalide", "Veuillez entrer une adresse email valide");
+      return;
+    }
+    
+    if (!isLogin && password.trim().length < 6) {
+      Alert.alert("Mot de passe trop court", "Votre mot de passe doit contenir au moins 6 caractères");
+      return;
+    }
+    
+    // Proceed with sending OTP
+    setOtpSent(true);
   };
 
   const handleToggleMethod = () => {
@@ -35,6 +67,40 @@ export default function LoginScreen() {
   const handleToggleAuthType = () => {
     setIsLogin(!isLogin);
     setOtpSent(false);
+    setOtp(['', '', '', '']);
+  };
+  
+  const handleOtpChange = (value, index) => {
+    const newOtp = [...otp];
+    newOtp[index] = value;
+    setOtp(newOtp);
+    
+    // Auto-focus next input if value is entered, or previous if deleted
+    if (value && index < 3) {
+      otpInputRefs.current[index + 1].focus();
+    } else if (!value && index > 0) {
+      otpInputRefs.current[index - 1].focus();
+    }
+  };
+  
+  const resendOtp = () => {
+    // Reset OTP fields
+    setOtp(['', '', '', '']);
+    Alert.alert("Code envoyé", `Un nouveau code a été envoyé à ${phoneMethod ? phone : email}`);
+    // Focus on first input
+    otpInputRefs.current[0].focus();
+  };
+  
+  const isFormValid = () => {
+    if (otpSent) {
+      return otp.join('').length === 4;
+    }
+    
+    if (phoneMethod) {
+      return phone.trim().length >= 8;
+    } else {
+      return email.includes('@') && email.trim().length >= 5;
+    }
   };
 
   return (
@@ -49,7 +115,7 @@ export default function LoginScreen() {
           </Text>
           <Text style={styles.subtitle}>
             {otpSent 
-              ? 'Nous avons envoyé un code de vérification sur votre téléphone' 
+              ? `Nous avons envoyé un code de vérification à ${phoneMethod ? phone : email}` 
               : isLogin 
                 ? 'Connectez-vous pour continuer' 
                 : 'Inscrivez-vous pour commencer'}
@@ -111,30 +177,31 @@ export default function LoginScreen() {
           {otpSent && (
             <View style={styles.otpContainer}>
               <View style={styles.otpInputsRow}>
-                {[1, 2, 3, 4].map((_, index) => (
+                {[0, 1, 2, 3].map((index) => (
                   <TextInput
                     key={index}
-                    style={styles.otpInput}
+                    ref={el => otpInputRefs.current[index] = el}
+                    style={[
+                      styles.otpInput, 
+                      otp[index] ? styles.otpInputFilled : null
+                    ]}
                     keyboardType="number-pad"
                     maxLength={1}
-                    onChangeText={(value) => {
-                      const newOtp = otp.split('');
-                      newOtp[index] = value;
-                      setOtp(newOtp.join(''));
-                    }}
+                    value={otp[index]}
+                    onChangeText={(value) => handleOtpChange(value, index)}
                   />
                 ))}
               </View>
-              <TouchableOpacity style={styles.resendButton}>
+              <TouchableOpacity style={styles.resendButton} onPress={resendOtp}>
                 <Text style={styles.resendButtonText}>Renvoyer le code</Text>
               </TouchableOpacity>
             </View>
           )}
 
           <TouchableOpacity
-            style={[styles.button, (!phone && !email) && styles.buttonDisabled]}
+            style={[styles.button, !isFormValid() && styles.buttonDisabled]}
             onPress={handleAuthentication}
-            disabled={!phone && !email}
+            disabled={!isFormValid()}
           >
             <Text style={styles.buttonText}>
               {otpSent ? 'Vérifier' : isLogin ? 'Se connecter' : "S'inscrire"}
@@ -143,14 +210,16 @@ export default function LoginScreen() {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity 
-          style={styles.authToggle}
-          onPress={handleToggleAuthType}
-        >
-          <Text style={styles.authToggleText}>
-            {isLogin ? "Pas encore de compte ? S'inscrire" : "Déjà un compte ? Se connecter"}
-          </Text>
-        </TouchableOpacity>
+        {!otpSent && (
+          <TouchableOpacity 
+            style={styles.authToggle}
+            onPress={handleToggleAuthType}
+          >
+            <Text style={styles.authToggleText}>
+              {isLogin ? "Pas encore de compte ? S'inscrire" : "Déjà un compte ? Se connecter"}
+            </Text>
+          </TouchableOpacity>
+        )}
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -227,8 +296,13 @@ const styles = StyleSheet.create({
     fontSize: FontSizes.xxl,
     fontFamily: 'Roboto-Bold',
   },
+  otpInputFilled: {
+    borderColor: Colors.primary.main,
+    backgroundColor: Colors.primary.light,
+  },
   resendButton: {
     alignSelf: 'center',
+    padding: Layout.spacing.sm,
   },
   resendButtonText: {
     fontFamily: 'Roboto-Medium',
