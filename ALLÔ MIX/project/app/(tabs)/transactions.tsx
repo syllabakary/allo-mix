@@ -6,6 +6,7 @@ import TransactionItem from '@/components/transactions/TransactionItem';
 import Colors from '@/constants/Colors';
 import Layout from '@/constants/Layout';
 import FontSizes from '@/constants/FontSizes';
+import { useTranslation } from 'react-i18next';
 
 const formatCurrency = (amount: number) =>
   `${amount.toLocaleString('fr-FR', { minimumFractionDigits: 0 })} FCFA`;
