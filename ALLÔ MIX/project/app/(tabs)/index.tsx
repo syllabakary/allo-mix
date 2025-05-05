@@ -261,7 +261,7 @@ export default function HomeScreen() {
           <BalanceCard 
             balance={25000}
             currency="F CFA"
-            onPress={() => router.push('/(tabs)/wallet')}
+            onPress={() => router.push('/(modals)/recharge')}
           />
         </Animated.View>
         
