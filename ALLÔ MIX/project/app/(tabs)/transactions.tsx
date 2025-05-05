@@ -7,6 +7,8 @@ import Colors from '@/constants/Colors';
 import Layout from '@/constants/Layout';
 import FontSizes from '@/constants/FontSizes';
 
+const formatCurrency = (amount: number) =>
+  `${amount.toLocaleString('fr-FR', { minimumFractionDigits: 0 })} FCFA`;
 // Sample transaction data
 const TRANSACTIONS = [
   {
@@ -90,6 +92,8 @@ const TRANSACTIONS = [
     details: 'Airtime Top-up'
   },
 ];
+
+
 
 const TIME_FILTERS = ['All Time', 'This Month', 'Last Month', 'Last 3 Months'];
 const TYPE_FILTERS = ['All Types', 'Data', 'Airtime', 'SMS', 'Combo'];
