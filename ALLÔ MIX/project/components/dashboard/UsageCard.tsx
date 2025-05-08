@@ -44,7 +44,7 @@ export default function UsageCard({ icon, title, used, total, unit, daysLeft }: 
           <View 
             style={[
               styles.progressFill,
-              { width: `${percentage}%` },
+              { width: `F CFA{percentage}%` },
               percentage > 80 && styles.progressWarning
             ]}
           />

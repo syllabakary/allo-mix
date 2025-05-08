@@ -8,6 +8,7 @@ import Layout from '@/constants/Layout';
 import FontSizes from '@/constants/FontSizes';
 import { useTranslation } from 'react-i18next';
 
+
 const formatCurrency = (amount: number) =>
   `${amount.toLocaleString('fr-FR', { minimumFractionDigits: 0 })} FCFA`;
 // Sample transaction data
@@ -183,7 +184,7 @@ export default function TransactionsScreen() {
         <View style={styles.summaryContainer}>
           <View style={[styles.summaryCard, { backgroundColor: Colors.primary.main }]}>
             <Text style={styles.summaryLabel}>Total Spent</Text>
-            <Text style={styles.summaryValue}>$87.48</Text>
+            <Text style={styles.summaryValue}>F CFA 87.48</Text>
           </View>
           
           <View style={[styles.summaryCard, { backgroundColor: Colors.secondary.main }]}>

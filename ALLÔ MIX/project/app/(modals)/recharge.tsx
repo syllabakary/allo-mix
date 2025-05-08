@@ -100,7 +100,7 @@ export default function RechargeScreen() {
   
   // Simuler une redirection vers l'application correspondante
   const redirectToApp = () => {
-    Alert.alert(`Redirection vers l'application ${selectedProvider?.name || selectedMethodData?.name}`);
+    Alert.alert(`Redirection vers l'application F CFA{selectedProvider?.name || selectedMethodData?.name}`);
     setShowAmountSelector(false);
     setShowPaymentModal(false);
   };

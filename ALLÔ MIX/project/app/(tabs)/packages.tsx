@@ -9,85 +9,85 @@ import Layout from '@/constants/Layout';
 import FontSizes from '@/constants/FontSizes';
 import { router } from 'expo-router';
 
-// Sample data for packages
+// Données d'exemple pour les forfaits
 const PACKAGES = [
   {
     id: '1',
-    name: 'Daily Data',
+    name: 'Forfait Journalier',
     operator: 'Orange',
-    data: '1GB',
-    validity: '1 day',
-    price: 1.99,
-    description: 'Fast internet for your daily needs',
+    data: '1Go',
+    validity: '1 jour',
+    price: 1300,
+    description: 'Internet rapide pour vos besoins quotidiens',
     popular: true,
   },
   {
     id: '2',
-    name: 'Weekly Social',
+    name: 'Social Hebdo',
     operator: 'MTN',
-    data: '3GB',
-    validity: '7 days',
-    price: 4.99,
-    description: 'Unlimited social media access',
+    data: '3Go',
+    validity: '7 jours',
+    price: 3250,
+    description: 'Accès illimité aux réseaux sociaux',
     popular: false,
   },
   {
     id: '3',
-    name: 'Monthly Max',
+    name: 'Mensuel Max',
     operator: 'Orange',
-    data: '20GB',
-    validity: '30 days',
-    price: 15.99,
-    description: 'Our best value monthly plan',
+    data: '20Go',
+    validity: '30 jours',
+    price: 10000,
+    description: 'Notre meilleur forfait mensuel',
     popular: true,
   },
   {
     id: '4',
-    name: 'Unlimited Calls',
+    name: 'Appels Illimités',
     operator: 'Moov',
-    data: '500MB',
-    validity: '30 days',
-    price: 9.99,
-    description: 'Unlimited calls to all networks',
+    data: '500Mo',
+    validity: '30 jours',
+    price: 6500,
+    description: 'Appels illimités vers tous les réseaux',
     popular: false,
   },
   {
     id: '5',
-    name: 'Family Share',
+    name: 'Forfait Famille',
     operator: 'MTN',
-    data: '50GB',
-    validity: '30 days',
-    price: 29.99,
-    description: 'Share data with up to 5 family members',
+    data: '50Go',
+    validity: '30 jours',
+    price: 19500,
+    description: 'Partagez vos données avec jusqu\'à 5 membres de votre famille',
     popular: true,
   },
   {
     id: '6',
-    name: 'Weekend Special',
+    name: 'Spécial Weekend',
     operator: 'Moov',
-    data: '5GB',
-    validity: '2 days',
-    price: 2.99,
-    description: 'Extra data for your weekend',
+    data: '5Go',
+    validity: '2 jours',
+    price: 1950,
+    description: 'Données supplémentaires pour votre weekend',
     popular: false,
   },
 ];
 
 export default function PackagesScreen() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeOperator, setActiveOperator] = useState('All');
-  const [activeType, setActiveType] = useState('All');
+  const [activeOperator, setActiveOperator] = useState('Tous');
+  const [activeType, setActiveType] = useState('Tous');
   
-  const operators = ['All', 'Orange', 'MTN', 'Moov'];
-  const packageTypes = ['All', 'Data', 'Voice', 'SMS', 'Combo'];
+  const operators = ['Tous', 'Orange', 'MTN', 'Moov'];
+  const packageTypes = ['Tous', 'Internet', 'Appels', 'SMS', 'Mixte'];
   
-  // Filter packages based on search, operator and type
+  // Filtrer les forfaits selon la recherche, l'opérateur et le type
   const filteredPackages = PACKAGES.filter(pkg => {
     const matchesSearch = pkg.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          pkg.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesOperator = activeOperator === 'All' || pkg.operator === activeOperator;
+    const matchesOperator = activeOperator === 'Tous' || pkg.operator === activeOperator;
     
-    // Note: In a real app, you'd have a proper type field to filter on
+    // Note: Dans une application réelle, vous auriez un champ type à filtrer
     return matchesSearch && matchesOperator;
   });
   
@@ -100,19 +100,19 @@ export default function PackagesScreen() {
 
   return (
     <View style={styles.container}>
-      <Header title="Packages" showBack={false} />
+      <Header title="Forfaits" showBack={false} />
       
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollViewContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Search Bar */}
+        {/* Barre de recherche */}
         <View style={styles.searchContainer}>
           <Search color={Colors.grey[500]} size={20} />
           <TextInput
             style={styles.searchInput}
-            placeholder="Search packages..."
+            placeholder="Rechercher des forfaits..."
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
@@ -121,9 +121,9 @@ export default function PackagesScreen() {
           </TouchableOpacity>
         </View>
         
-        {/* Operator Filters */}
+        {/* Filtres par opérateur */}
         <View style={styles.filtersSection}>
-          <Text style={styles.filterLabel}>Operator</Text>
+          <Text style={styles.filterLabel}>Opérateur</Text>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -140,9 +140,9 @@ export default function PackagesScreen() {
           </ScrollView>
         </View>
         
-        {/* Package Type Filters */}
+        {/* Filtres par type de forfait */}
         <View style={styles.filtersSection}>
-          <Text style={styles.filterLabel}>Package Type</Text>
+          <Text style={styles.filterLabel}>Type de forfait</Text>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -159,10 +159,10 @@ export default function PackagesScreen() {
           </ScrollView>
         </View>
         
-        {/* Featured Packages */}
+        {/* Forfaits en vedette */}
         <View style={styles.sectionContainer}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Featured Packages</Text>
+            <Text style={styles.sectionTitle}>Forfaits en vedette</Text>
             <Tag color={Colors.primary.main} size={18} />
           </View>
           
@@ -184,9 +184,9 @@ export default function PackagesScreen() {
           </ScrollView>
         </View>
         
-        {/* All Packages */}
+        {/* Tous les forfaits */}
         <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>All Packages</Text>
+          <Text style={styles.sectionTitle}>Tous les forfaits</Text>
           {filteredPackages.length > 0 ? (
             filteredPackages.map(pkg => (
               <PackageCard
@@ -198,7 +198,7 @@ export default function PackagesScreen() {
             ))
           ) : (
             <View style={styles.emptyState}>
-              <Text style={styles.emptyStateText}>No packages found matching your criteria.</Text>
+              <Text style={styles.emptyStateText}>Aucun forfait ne correspond à vos critères.</Text>
             </View>
           )}
         </View>

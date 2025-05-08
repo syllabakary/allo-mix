@@ -8,6 +8,8 @@ import FontSizes from '@/constants/FontSizes';
 
 export default function PaymentSuccessScreen() {
   const { amount } = useLocalSearchParams();
+  // Conversion approximative USD -> F CFA (1 USD = 600 F CFA)
+  const amountCFA = parseInt(amount) * 600;
   
   const handleGoHome = () => {
     router.replace('/(tabs)');
@@ -18,31 +20,31 @@ export default function PaymentSuccessScreen() {
   };
   
   const handleShare = () => {
-    // In a real app, this would use the Share API
-    console.log('Sharing payment receipt');
+    // Dans une application réelle, utiliserait l'API Share
+    console.log('Partage du reçu de paiement');
   };
 
   return (
     <View style={styles.container}>
-      {/* Success Animation */}
+      {/* Animation de succès */}
       <View style={styles.animationContainer}>
         <View style={styles.successIconContainer}>
           <Check color={Colors.common.white} size={48} />
         </View>
       </View>
       
-      {/* Success Message */}
+      {/* Message de succès */}
       <View style={styles.messageContainer}>
-        <Text style={styles.successTitle}>Payment Successful!</Text>
+        <Text style={styles.successTitle}>Paiement Réussi !</Text>
         <Text style={styles.successMessage}>
-          Your payment of ${amount} has been processed successfully.
+          Votre paiement de {amountCFA.toLocaleString('fr-FR')} F CFA a été traité avec succès.
         </Text>
       </View>
       
-      {/* Receipt Details */}
+      {/* Détails du reçu */}
       <View style={styles.receiptCard}>
         <View style={styles.receiptHeader}>
-          <Text style={styles.receiptTitle}>Payment Receipt</Text>
+          <Text style={styles.receiptTitle}>Reçu de Paiement</Text>
           <TouchableOpacity 
             style={styles.shareButton}
             onPress={handleShare}
@@ -54,30 +56,30 @@ export default function PaymentSuccessScreen() {
         <View style={styles.receiptDivider} />
         
         <View style={styles.receiptRow}>
-          <Text style={styles.receiptLabel}>Amount</Text>
-          <Text style={styles.receiptValue}>${amount}</Text>
+          <Text style={styles.receiptLabel}>Montant</Text>
+          <Text style={styles.receiptValue}>{amountCFA.toLocaleString('fr-FR')} F CFA</Text>
         </View>
         
         <View style={styles.receiptRow}>
           <Text style={styles.receiptLabel}>Date</Text>
-          <Text style={styles.receiptValue}>{new Date().toLocaleDateString()}</Text>
+          <Text style={styles.receiptValue}>{new Date().toLocaleDateString('fr-FR')}</Text>
         </View>
         
         <View style={styles.receiptRow}>
-          <Text style={styles.receiptLabel}>Time</Text>
-          <Text style={styles.receiptValue}>{new Date().toLocaleTimeString()}</Text>
+          <Text style={styles.receiptLabel}>Heure</Text>
+          <Text style={styles.receiptValue}>{new Date().toLocaleTimeString('fr-FR')}</Text>
         </View>
         
         <View style={styles.receiptRow}>
-          <Text style={styles.receiptLabel}>Transaction ID</Text>
+          <Text style={styles.receiptLabel}>Identifiant de transaction</Text>
           <Text style={styles.receiptValue}>TXN123456789</Text>
         </View>
         
         <View style={styles.receiptRow}>
-          <Text style={styles.receiptLabel}>Status</Text>
+          <Text style={styles.receiptLabel}>Statut</Text>
           <View style={styles.statusContainer}>
             <View style={styles.statusDot} />
-            <Text style={styles.statusText}>Completed</Text>
+            <Text style={styles.statusText}>Terminé</Text>
           </View>
         </View>
       </View>
@@ -89,14 +91,14 @@ export default function PaymentSuccessScreen() {
           onPress={handleGoHome}
         >
           <Home color={Colors.primary.main} size={20} />
-          <Text style={styles.actionButtonText}>Back to Home</Text>
+          <Text style={styles.actionButtonText}>Retour à l'accueil</Text>
         </TouchableOpacity>
         
         <TouchableOpacity 
           style={styles.actionButtonPrimary}
           onPress={handleViewDetails}
         >
-          <Text style={styles.actionButtonPrimaryText}>View Details</Text>
+          <Text style={styles.actionButtonPrimaryText}>Voir les détails</Text>
           <ArrowRight color={Colors.common.white} size={20} />
         </TouchableOpacity>
       </View>

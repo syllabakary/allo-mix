@@ -35,12 +35,12 @@ export default function TransactionItem({ transaction }: TransactionProps) {
         <Text style={styles.typeText}>{transaction.type}</Text>
         <Text style={styles.operatorText}>{transaction.operator}</Text>
         <Text style={styles.recipientText}>
-          {transaction.recipient === 'Self' ? 'For yourself' : `To: ${transaction.recipient}`}
+          {transaction.recipient === 'Self' ? 'For yourself' : `To: F CFA{transaction.recipient}`}
         </Text>
       </View>
       
       <View style={styles.rightContent}>
-        <Text style={styles.amountText}>${transaction.amount.toFixed(2)}</Text>
+        <Text style={styles.amountText}>F CFA{transaction.amount.toFixed(2)}</Text>
         <Text style={styles.dateText}>{new Date(transaction.date).toLocaleDateString()}</Text>
         <View style={styles.statusContainer}>
           <View 

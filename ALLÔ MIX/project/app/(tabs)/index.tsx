@@ -121,7 +121,7 @@ const BalanceCard = ({ balance, currency, onPress }) => {
       onPress={onPress}
     >
       <LinearGradient
-        colors={['#0C0C0CFF', '#00000084E2']}
+        colors={['#04533CFF', '#007C7C8EE2']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.balanceCard}

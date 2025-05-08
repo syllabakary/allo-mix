@@ -7,21 +7,21 @@ import Colors from '@/constants/Colors';
 import Layout from '@/constants/Layout';
 import FontSizes from '@/constants/FontSizes';
 
-// Sample referrals data
+// Données d'exemple des parrainages
 const REFERRALS = [
   {
     id: '1',
     name: 'John Smith',
     date: '2023-05-15',
     status: 'completed',
-    reward: 5
+    reward: 3000
   },
   {
     id: '2',
     name: 'Emma Wilson',
     date: '2023-05-20',
     status: 'completed',
-    reward: 5
+    reward: 3000
   },
   {
     id: '3',
@@ -35,35 +35,35 @@ const REFERRALS = [
 export default function ReferralScreen() {
   const [copiedCode, setCopiedCode] = useState(false);
   const referralCode = 'SARAH25';
-  const earnedAmount = 10; // $10 earned from referrals
-  const remainingToNextReward = 5; // $5 more to reach next reward tier
+  const earnedAmount = 6000; // 6000 F CFA gagnés par les parrainages
+  const remainingToNextReward = 3000; // 3000 F CFA de plus pour atteindre le prochain niveau de récompense
   
   const handleCopyCode = () => {
-    // In a real app, this would copy to clipboard
+    // Dans une vraie application, ceci copierait dans le presse-papiers
     setCopiedCode(true);
     setTimeout(() => setCopiedCode(false), 2000);
   };
   
   const handleShare = () => {
-    // In a real app, this would use the Share API
-    console.log('Sharing referral code');
+    // Dans une vraie application, ceci utiliserait l'API de partage
+    console.log('Partage du code de parrainage');
   };
 
   return (
     <View style={styles.container}>
-      <Header title="Referral Program" showBack />
+      <Header title="Programme de Parrainage" showBack />
       
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollViewContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Referral Banner */}
+        {/* Bannière de Parrainage */}
         <View style={styles.bannerCard}>
           <View style={styles.bannerContent}>
-            <Text style={styles.bannerTitle}>Share & Earn</Text>
+            <Text style={styles.bannerTitle}>Partagez & Gagnez</Text>
             <Text style={styles.bannerDescription}>
-              Invite friends to TeleRecharge and earn $5 for each friend who signs up and makes their first recharge!
+              Invitez vos amis à rejoindre TeleRecharge et gagnez 3000 F CFA pour chaque ami qui s'inscrit et effectue sa première recharge !
             </Text>
           </View>
           
@@ -72,9 +72,9 @@ export default function ReferralScreen() {
           </View>
         </View>
         
-        {/* Referral Code Card */}
+        {/* Carte du Code de Parrainage */}
         <View style={styles.codeCard}>
-          <Text style={styles.codeLabel}>Your Referral Code</Text>
+          <Text style={styles.codeLabel}>Votre Code de Parrainage</Text>
           
           <View style={styles.codeContainer}>
             <Text style={styles.code}>{referralCode}</Text>
@@ -85,7 +85,7 @@ export default function ReferralScreen() {
             >
               <Copy color={Colors.primary.main} size={20} />
               <Text style={styles.copyButtonText}>
-                {copiedCode ? 'Copied!' : 'Copy'}
+                {copiedCode ? 'Copié !' : 'Copier'}
               </Text>
             </TouchableOpacity>
           </View>
@@ -95,15 +95,15 @@ export default function ReferralScreen() {
             onPress={handleShare}
           >
             <Share2 color={Colors.common.white} size={20} />
-            <Text style={styles.shareButtonText}>Share with Friends</Text>
+            <Text style={styles.shareButtonText}>Partager avec des Amis</Text>
           </TouchableOpacity>
         </View>
         
-        {/* Earnings Progress */}
+        {/* Progression des Gains */}
         <View style={styles.progressCard}>
           <View style={styles.progressHeader}>
-            <Text style={styles.progressTitle}>Your Earnings</Text>
-            <Text style={styles.progressAmount}>${earnedAmount}</Text>
+            <Text style={styles.progressTitle}>Vos Gains</Text>
+            <Text style={styles.progressAmount}>{earnedAmount} F CFA</Text>
           </View>
           
           <View style={styles.progressBarContainer}>
@@ -111,28 +111,28 @@ export default function ReferralScreen() {
               <View 
                 style={[
                   styles.progressFill,
-                  { width: `${(earnedAmount / (earnedAmount + remainingToNextReward)) * 100}%` }
+                  { width: `F CFA{(earnedAmount / (earnedAmount + remainingToNextReward)) * 100}%` }
                 ]}
               />
             </View>
             <Text style={styles.progressText}>
-              ${remainingToNextReward} more to reach your next reward
+              Encore {remainingToNextReward} F CFA pour atteindre votre prochaine récompense
             </Text>
           </View>
         </View>
         
-        {/* How It Works */}
+        {/* Comment Ça Marche */}
         <View style={styles.howItWorksCard}>
-          <Text style={styles.sectionTitle}>How It Works</Text>
+          <Text style={styles.sectionTitle}>Comment Ça Marche</Text>
           
           <View style={styles.stepContainer}>
             <View style={styles.stepIconContainer}>
               <Share2 color={Colors.secondary.main} size={24} />
             </View>
             <View style={styles.stepContent}>
-              <Text style={styles.stepTitle}>Share Your Code</Text>
+              <Text style={styles.stepTitle}>Partagez Votre Code</Text>
               <Text style={styles.stepDescription}>
-                Share your unique referral code with friends and family
+                Partagez votre code unique de parrainage avec vos amis et votre famille
               </Text>
             </View>
           </View>
@@ -144,9 +144,9 @@ export default function ReferralScreen() {
               <Users color={Colors.secondary.main} size={24} />
             </View>
             <View style={styles.stepContent}>
-              <Text style={styles.stepTitle}>Friends Sign Up</Text>
+              <Text style={styles.stepTitle}>Vos Amis S'inscrivent</Text>
               <Text style={styles.stepDescription}>
-                They create an account using your referral code
+                Ils créent un compte en utilisant votre code de parrainage
               </Text>
             </View>
           </View>
@@ -158,20 +158,20 @@ export default function ReferralScreen() {
               <Trophy color={Colors.secondary.main} size={24} />
             </View>
             <View style={styles.stepContent}>
-              <Text style={styles.stepTitle}>Earn Rewards</Text>
+              <Text style={styles.stepTitle}>Gagnez des Récompenses</Text>
               <Text style={styles.stepDescription}>
-                You both get $5 when they make their first recharge
+                Vous recevez tous les deux 3000 F CFA lorsqu'ils effectuent leur première recharge
               </Text>
             </View>
           </View>
         </View>
         
-        {/* Your Referrals */}
+        {/* Vos Parrainages */}
         <View style={styles.referralsCard}>
           <View style={styles.referralsHeader}>
-            <Text style={styles.sectionTitle}>Your Referrals</Text>
+            <Text style={styles.sectionTitle}>Vos Parrainages</Text>
             <TouchableOpacity style={styles.viewAllButton}>
-              <Text style={styles.viewAllText}>View All</Text>
+              <Text style={styles.viewAllText}>Voir Tout</Text>
               <ChevronRight color={Colors.secondary.main} size={16} />
             </TouchableOpacity>
           </View>
@@ -189,7 +189,7 @@ export default function ReferralScreen() {
                   <View style={styles.referralDetails}>
                     <Text style={styles.referralName}>{referral.name}</Text>
                     <Text style={styles.referralDate}>
-                      Joined on {new Date(referral.date).toLocaleDateString()}
+                      Inscrit le {new Date(referral.date).toLocaleDateString()}
                     </Text>
                   </View>
                 </View>
@@ -202,7 +202,7 @@ export default function ReferralScreen() {
                     ]}
                   />
                   <Text style={styles.referralReward}>
-                    {referral.status === 'completed' ? `+$${referral.reward}` : 'Pending'}
+                    {referral.status === 'completed' ? `+F CFA{referral.reward} F CFA` : 'En attente'}
                   </Text>
                 </View>
               </View>
@@ -210,7 +210,7 @@ export default function ReferralScreen() {
           ) : (
             <View style={styles.emptyReferrals}>
               <Text style={styles.emptyReferralsText}>
-                You haven't referred anyone yet. Share your code to start earning!
+                Vous n'avez encore parrainé personne. Partagez votre code pour commencer à gagner !
               </Text>
             </View>
           )}

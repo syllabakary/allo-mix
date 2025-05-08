@@ -138,7 +138,7 @@ export default function PaymentScreen() {
           
           <View style={styles.totalRow}>
             <Text style={styles.totalLabel}>Total Amount</Text>
-            <Text style={styles.totalValue}>${amount}</Text>
+            <Text style={styles.totalValue}>F CFA{amount}</Text>
           </View>
         </View>
         

@@ -34,7 +34,7 @@ export default function PackageCard({ packageData, featured, onPress }: PackageC
       {packageData.popular && (
         <View style={styles.popularTag}>
           <Tag color={Colors.primary.main} size={14} />
-          <Text style={styles.popularText}>Popular</Text>
+          <Text style={styles.popularText}>Populaire</Text>
         </View>
       )}
       
@@ -47,19 +47,19 @@ export default function PackageCard({ packageData, featured, onPress }: PackageC
       <View style={styles.detailsRow}>
         <View style={styles.detailItem}>
           <Text style={styles.detailValue}>{packageData.data}</Text>
-          <Text style={styles.detailLabel}>Data</Text>
+          <Text style={styles.detailLabel}>Internet</Text>
         </View>
         
         <View style={styles.detailItem}>
           <Text style={styles.detailValue}>{packageData.validity}</Text>
-          <Text style={styles.detailLabel}>Validity</Text>
+          <Text style={styles.detailLabel}>Validité</Text>
         </View>
       </View>
       
       <View style={styles.footer}>
         <Text style={styles.price}>${packageData.price.toFixed(2)}</Text>
         <View style={styles.viewButton}>
-          <Text style={styles.viewButtonText}>View</Text>
+          <Text style={styles.viewButtonText}>Voir</Text>
         </View>
       </View>
     </TouchableOpacity>

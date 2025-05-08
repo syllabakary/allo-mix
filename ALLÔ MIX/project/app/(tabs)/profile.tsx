@@ -11,7 +11,7 @@ import { router } from 'expo-router';
 export default function ProfileScreen() {
   return (
     <View style={styles.container}>
-      <Header title="Profile" showBack={false} />
+      <Header title="Profil" showBack={false} />
       
       <ScrollView
         style={styles.scrollView}
@@ -31,7 +31,7 @@ export default function ProfileScreen() {
           <Text style={styles.profilePhone}>+1 234 567 8901</Text>
           
           <TouchableOpacity style={styles.editButton}>
-            <Text style={styles.editButtonText}>Edit Profile</Text>
+            <Text style={styles.editButtonText}>Modifier le profil</Text>
           </TouchableOpacity>
         </View>
         
@@ -39,9 +39,9 @@ export default function ProfileScreen() {
         <View style={styles.referralCard}>
           <View style={styles.referralContent}>
             <View>
-              <Text style={styles.referralTitle}>Invite Friends</Text>
+              <Text style={styles.referralTitle}>Inviter des amis</Text>
               <Text style={styles.referralDescription}>
-                Share and earn $5 for each friend who signs up!
+                Partagez et gagnez 3 000 F CFA pour chaque ami qui s'inscrit !
               </Text>
             </View>
             
@@ -54,29 +54,29 @@ export default function ProfileScreen() {
             style={styles.referralButton}
             onPress={() => router.push('/(modals)/referral')}
           >
-            <Text style={styles.referralButtonText}>Share Referral Link</Text>
+            <Text style={styles.referralButtonText}>Partager le lien de parrainage</Text>
             <Share2 color={Colors.background.paper} size={16} />
           </TouchableOpacity>
         </View>
         
         {/* Menu Section: Account */}
         <View style={styles.menuSection}>
-          <Text style={styles.menuSectionTitle}>Account</Text>
+          <Text style={styles.menuSectionTitle}>Compte</Text>
           
           <View style={styles.menuCard}>
             <MenuOption 
               icon={<User color={Colors.secondary.main} size={20} />}
-              title="Personal Information"
+              title="Informations personnelles"
               onPress={() => {}}
             />
             <MenuOption 
               icon={<CreditCard color={Colors.secondary.main} size={20} />}
-              title="Payment Methods"
+              title="Méthodes de paiement"
               onPress={() => router.push('/(modals)/payment-methods')}
             />
             <MenuOption 
               icon={<Gift color={Colors.secondary.main} size={20} />}
-              title="Rewards & Referrals"
+              title="Récompenses et parrainages"
               onPress={() => router.push('/(modals)/referral')}
               showBadge
               badgeText="3"
@@ -86,17 +86,17 @@ export default function ProfileScreen() {
         
         {/* Menu Section: Support */}
         <View style={styles.menuSection}>
-          <Text style={styles.menuSectionTitle}>Support</Text>
+          <Text style={styles.menuSectionTitle}>Assistance</Text>
           
           <View style={styles.menuCard}>
             <MenuOption 
               icon={<MessageCircle color={Colors.secondary.main} size={20} />}
-              title="Help Center"
+              title="Centre d'aide"
               onPress={() => router.push('/(modals)/help')}
             />
             <MenuOption 
               icon={<Settings color={Colors.secondary.main} size={20} />}
-              title="Settings"
+              title="Paramètres"
               onPress={() => {}}
             />
           </View>
@@ -108,7 +108,7 @@ export default function ProfileScreen() {
           onPress={() => router.replace('/(onboarding)')}
         >
           <LogOut color={Colors.error.main} size={20} />
-          <Text style={styles.signOutText}>Sign Out</Text>
+          <Text style={styles.signOutText}>Se déconnecter</Text>
         </TouchableOpacity>
         
         {/* App Version */}

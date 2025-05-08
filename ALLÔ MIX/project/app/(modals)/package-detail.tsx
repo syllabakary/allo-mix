@@ -1,5 +1,14 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  ScrollView, 
+  TouchableOpacity, 
+  Image,
+  TextInput,
+  Alert
+} from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { X, Check, TriangleAlert as AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react-native';
 import Header from '@/components/common/Header';
@@ -7,143 +16,120 @@ import Colors from '@/constants/Colors';
 import Layout from '@/constants/Layout';
 import FontSizes from '@/constants/FontSizes';
 
-// Sample packages data (in a real app, you would fetch this from an API or database)
+// Données des forfaits en français
 const PACKAGES = [
   {
     id: '1',
-    name: 'Daily Data',
+    name: 'Forfait Quotidien',
     operator: 'Orange',
     operatorLogo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Orange_logo.svg/200px-Orange_logo.svg.png',
-    data: '1GB',
+    data: '1 Go',
     calls: '10 min',
     sms: '10 SMS',
-    validity: '1 day',
-    price: 1.99,
-    description: 'Fast internet for your daily needs',
+    validity: '1 jour',
+    price: 1200,
+    description: 'Internet rapide pour vos besoins quotidiens',
     popular: true,
     features: [
-      'High-speed browsing',
-      'Social media access',
-      'Limited calls included',
-      'Limited SMS included'
+      'Navigation haute vitesse',
+      'Accès aux réseaux sociaux',
+      'Appels inclus limités',
+      'SMS inclus limités'
     ],
     restrictions: [
-      'No video streaming',
-      'Not shareable'
+      'Pas de streaming vidéo',
+      'Non partageable'
     ]
   },
   {
     id: '2',
-    name: 'Weekly Social',
+    name: 'Réseaux Sociaux Hebdo',
     operator: 'MTN',
     operatorLogo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/MTN_Logo.svg/200px-MTN_Logo.svg.png',
-    data: '3GB',
+    data: '3 Go',
     calls: '20 min',
     sms: '20 SMS',
-    validity: '7 days',
-    price: 4.99,
-    description: 'Unlimited social media access',
+    validity: '7 jours',
+    price: 3000,
+    description: 'Accès illimité aux réseaux sociaux',
     popular: false,
     features: [
-      'Unlimited social media',
-      'High-speed browsing',
-      'Limited calls included',
-      'Limited SMS included'
+      'Réseaux sociaux illimités',
+      'Navigation haute vitesse',
+      'Appels inclus limités',
+      'SMS inclus limités'
     ],
     restrictions: [
-      'No video streaming',
-      'Not shareable'
+      'Pas de streaming vidéo',
+      'Non partageable'
     ]
   },
   {
     id: '3',
-    name: 'Monthly Max',
+    name: 'Forfait Mensuel Max',
     operator: 'Orange',
     operatorLogo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Orange_logo.svg/200px-Orange_logo.svg.png',
-    data: '20GB',
+    data: '20 Go',
     calls: '100 min',
     sms: '100 SMS',
-    validity: '30 days',
-    price: 15.99,
-    description: 'Our best value monthly plan',
+    validity: '30 jours',
+    price: 10000,
+    description: 'Notre meilleure offre mensuelle',
     popular: true,
     features: [
-      'High-speed browsing',
-      'Video streaming allowed',
-      'Generous call minutes',
-      'Generous SMS',
-      'Shareable with 1 device'
+      'Navigation haute vitesse',
+      'Streaming vidéo autorisé',
+      'Minutes d\'appel généreuses',
+      'SMS généreux',
+      'Partageable avec 1 appareil'
     ],
     restrictions: [
-      'Fair usage policy applies'
+      'Politique d\'usage équitable applicable'
     ]
   },
   {
     id: '4',
-    name: 'Unlimited Calls',
+    name: 'Appels Illimités',
     operator: 'Moov',
     operatorLogo: 'https://seeklogo.com/images/M/moov-africa-logo-459FC30F68-seeklogo.com.png',
-    data: '500MB',
-    calls: 'Unlimited',
+    data: '500 Mo',
+    calls: 'Illimités',
     sms: '50 SMS',
-    validity: '30 days',
-    price: 9.99,
-    description: 'Unlimited calls to all networks',
+    validity: '30 jours',
+    price: 6000,
+    description: 'Appels illimités vers tous les réseaux',
     popular: false,
     features: [
-      'Unlimited calls to all networks',
-      'Basic data included',
-      'Limited SMS'
+      'Appels illimités tous réseaux',
+      'Data basique incluse',
+      'SMS limités'
     ],
     restrictions: [
-      'Fair usage policy applies',
-      'Not shareable'
+      'Politique d\'usage équitable',
+      'Non partageable'
     ]
   },
   {
     id: '5',
-    name: 'Family Share',
+    name: 'Partage Familial',
     operator: 'MTN',
     operatorLogo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/MTN_Logo.svg/200px-MTN_Logo.svg.png',
-    data: '50GB',
+    data: '50 Go',
     calls: '300 min',
     sms: '300 SMS',
-    validity: '30 days',
-    price: 29.99,
-    description: 'Share data with up to 5 family members',
+    validity: '30 jours',
+    price: 18000,
+    description: 'Partagez avec jusqu\'à 5 membres',
     popular: true,
     features: [
-      'High-speed browsing',
-      'Video streaming allowed',
-      'Generous call minutes',
-      'Generous SMS',
-      'Shareable with up to 5 devices'
+      'Navigation haute vitesse',
+      'Streaming vidéo autorisé',
+      'Minutes d\'appel généreuses',
+      'SMS généreux',
+      'Partageable jusqu\'à 5 appareils'
     ],
     restrictions: [
-      'Fair usage policy applies'
-    ]
-  },
-  {
-    id: '6',
-    name: 'Weekend Special',
-    operator: 'Moov',
-    operatorLogo: 'https://seeklogo.com/images/M/moov-africa-logo-459FC30F68-seeklogo.com.png',
-    data: '5GB',
-    calls: '30 min',
-    sms: '30 SMS',
-    validity: '2 days',
-    price: 2.99,
-    description: 'Extra data for your weekend',
-    popular: false,
-    features: [
-      'High-speed browsing',
-      'Video streaming allowed',
-      'Limited calls included',
-      'Limited SMS included'
-    ],
-    restrictions: [
-      'Valid only on weekends (Fri-Sun)',
-      'Not shareable'
+      'Politique d\'usage équitable applicable'
     ]
   },
 ];
@@ -153,62 +139,88 @@ export default function PackageDetailScreen() {
   const [showFeatures, setShowFeatures] = useState(true);
   const [showRestrictions, setShowRestrictions] = useState(true);
   const [recipient, setRecipient] = useState('self');
+  const [phoneNumber, setPhoneNumber] = useState('');
   
-  // Find the package by id
   const packageData = PACKAGES.find(pkg => pkg.id === id);
   
+  // Formatage des nombres en XOF
+  const formatXOF = (amount) => {
+    return new Intl.NumberFormat('fr-FR').format(amount) + ' XOF';
+  };
+
+  // Fonction pour basculer l'affichage des caractéristiques
+  const toggleFeatures = () => {
+    setShowFeatures(!showFeatures);
+  };
+
+  // Fonction pour basculer l'affichage des restrictions
+  const toggleRestrictions = () => {
+    setShowRestrictions(!showRestrictions);
+  };
+
+  // Fonction pour gérer l'achat
+  const handlePurchase = () => {
+    if (recipient === 'other' && !phoneNumber) {
+      Alert.alert(
+        "Numéro manquant",
+        "Veuillez entrer un numéro de téléphone pour le bénéficiaire.",
+        [{ text: "OK" }]
+      );
+      return;
+    }
+    
+    // Naviguer vers la page de paiement avec les détails du forfait et du bénéficiaire
+    router.push({
+      pathname: '/payment',
+      params: {
+        packageId: packageData.id,
+        recipient: recipient,
+        phoneNumber: recipient === 'other' ? phoneNumber : 'self'
+      }
+    });
+  };
+
+  // Fonction pour naviguer vers la page de la carte
+  const viewCard = () => {
+    router.push({
+      pathname: '/card',
+      params: {
+        packageId: packageData.id
+      }
+    });
+  };
+
   if (!packageData) {
     return (
       <View style={styles.container}>
-        <Header title="Package Details" showBack />
+        <Header title="Détails du forfait" showBack />
         <View style={styles.errorContainer}>
           <AlertTriangle color={Colors.error.main} size={48} />
-          <Text style={styles.errorText}>Package not found</Text>
+          <Text style={styles.errorText}>Forfait non trouvé</Text>
           <TouchableOpacity 
             style={styles.backButton}
             onPress={() => router.back()}
           >
-            <Text style={styles.backButtonText}>Go Back</Text>
+            <Text style={styles.backButtonText}>Retour</Text>
           </TouchableOpacity>
         </View>
       </View>
     );
   }
 
-  const toggleFeatures = () => {
-    setShowFeatures(!showFeatures);
-  };
-  
-  const toggleRestrictions = () => {
-    setShowRestrictions(!showRestrictions);
-  };
-  
-  const handlePurchase = () => {
-    router.push({
-      pathname: '/(modals)/payment',
-      params: { 
-        id: packageData.id,
-        amount: packageData.price,
-        name: packageData.name,
-        recipient: recipient
-      }
-    });
-  };
-
   return (
     <View style={styles.container}>
-      <Header title="Package Details" showBack />
+      <Header title="Détails du forfait" showBack />
       
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollViewContent}
-        showsVerticalScrollIndicator={false}
       >
-        {/* Package Header */}
+        {/* En-tête du forfait */}
         <View style={styles.packageHeader}>
           <View style={styles.operatorLogoContainer}>
-            <Image
-              source={{ uri: packageData.operatorLogo }}
+            <Image 
+              source={{ uri: packageData.operatorLogo }} 
               style={styles.operatorLogo}
               resizeMode="contain"
             />
@@ -221,24 +233,24 @@ export default function PackageDetailScreen() {
           
           {packageData.popular && (
             <View style={styles.popularBadge}>
-              <Text style={styles.popularText}>Popular</Text>
+              <Text style={styles.popularText}>Populaire</Text>
             </View>
           )}
         </View>
         
-        {/* Package Details */}
+        {/* Détails du forfait */}
         <View style={styles.detailsCard}>
           <Text style={styles.descriptionText}>{packageData.description}</Text>
           
           <View style={styles.featureGrid}>
             <View style={styles.featureItem}>
               <Text style={styles.featureValue}>{packageData.data}</Text>
-              <Text style={styles.featureLabel}>Data</Text>
+              <Text style={styles.featureLabel}>Internet</Text>
             </View>
             
             <View style={styles.featureItem}>
               <Text style={styles.featureValue}>{packageData.calls}</Text>
-              <Text style={styles.featureLabel}>Calls</Text>
+              <Text style={styles.featureLabel}>Appels</Text>
             </View>
             
             <View style={styles.featureItem}>
@@ -248,16 +260,24 @@ export default function PackageDetailScreen() {
             
             <View style={styles.featureItem}>
               <Text style={styles.featureValue}>{packageData.validity}</Text>
-              <Text style={styles.featureLabel}>Validity</Text>
+              <Text style={styles.featureLabel}>Validité</Text>
             </View>
           </View>
           
-          {/* Features */}
+          {/* Bouton pour voir la carte */}
+          <TouchableOpacity 
+            style={styles.viewCardButton}
+            onPress={viewCard}
+          >
+            <Text style={styles.viewCardText}>Voir la carte</Text>
+          </TouchableOpacity>
+          
+          {/* Caractéristiques */}
           <TouchableOpacity 
             style={styles.accordionHeader}
             onPress={toggleFeatures}
           >
-            <Text style={styles.accordionTitle}>Features</Text>
+            <Text style={styles.accordionTitle}>Caractéristiques</Text>
             {showFeatures ? (
               <ChevronUp color={Colors.text.primary} size={20} />
             ) : (
@@ -301,60 +321,57 @@ export default function PackageDetailScreen() {
           )}
         </View>
         
-        {/* Recipient Selection */}
+        {/* Choix du bénéficiaire */}
         <View style={styles.recipientCard}>
-          <Text style={styles.recipientTitle}>Choose Recipient</Text>
-          
+          <Text style={styles.recipientTitle}>Choisir le bénéficiaire</Text>
           <View style={styles.recipientOptions}>
             <TouchableOpacity 
-              style={[
-                styles.recipientOption,
-                recipient === 'self' && styles.activeRecipientOption
-              ]}
+              style={[styles.recipientOption, recipient === 'self' && styles.activeRecipientOption]}
               onPress={() => setRecipient('self')}
             >
-              <Text 
-                style={[
-                  styles.recipientOptionText,
-                  recipient === 'self' && styles.activeRecipientOptionText
-                ]}
-              >
-                For Myself
+              <Text style={[styles.recipientOptionText, recipient === 'self' && styles.activeRecipientOptionText]}>
+                Pour moi-même
               </Text>
             </TouchableOpacity>
             
             <TouchableOpacity 
-              style={[
-                styles.recipientOption,
-                recipient === 'other' && styles.activeRecipientOption
-              ]}
+              style={[styles.recipientOption, recipient === 'other' && styles.activeRecipientOption]}
               onPress={() => setRecipient('other')}
             >
-              <Text 
-                style={[
-                  styles.recipientOptionText,
-                  recipient === 'other' && styles.activeRecipientOptionText
-                ]}
-              >
-                For Someone Else
+              <Text style={[styles.recipientOptionText, recipient === 'other' && styles.activeRecipientOptionText]}>
+                Pour quelqu'un d'autre
               </Text>
             </TouchableOpacity>
           </View>
+          
+          {/* Champ pour entrer le numéro de téléphone si "Pour quelqu'un d'autre" est sélectionné */}
+          {recipient === 'other' && (
+            <View style={styles.phoneInputContainer}>
+              <Text style={styles.phoneInputLabel}>Numéro du bénéficiaire</Text>
+              <TextInput
+                style={styles.phoneInput}
+                placeholder="Ex: +225 XX XX XX XX XX"
+                value={phoneNumber}
+                onChangeText={setPhoneNumber}
+                keyboardType="phone-pad"
+              />
+            </View>
+          )}
         </View>
       </ScrollView>
       
-      {/* Bottom Purchase Bar */}
+      {/* Barre d'achat */}
       <View style={styles.purchaseBar}>
         <View style={styles.priceContainer}>
-          <Text style={styles.priceLabel}>Price</Text>
-          <Text style={styles.priceValue}>${packageData.price.toFixed(2)}</Text>
+          <Text style={styles.priceLabel}>Prix</Text>
+          <Text style={styles.priceValue}>{formatXOF(packageData.price)}</Text>
         </View>
         
         <TouchableOpacity 
           style={styles.purchaseButton}
           onPress={handlePurchase}
         >
-          <Text style={styles.purchaseButtonText}>Purchase Now</Text>
+          <Text style={styles.purchaseButtonText}>Acheter maintenant</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -484,6 +501,18 @@ const styles = StyleSheet.create({
     fontSize: FontSizes.sm,
     color: Colors.text.secondary,
   },
+  viewCardButton: {
+    backgroundColor: Colors.secondary.light,
+    paddingVertical: Layout.spacing.md,
+    alignItems: 'center',
+    borderRadius: Layout.borderRadius.md,
+    marginBottom: Layout.spacing.lg,
+  },
+  viewCardText: {
+    fontFamily: 'Poppins-Medium',
+    fontSize: FontSizes.md,
+    color: Colors.secondary.main,
+  },
   accordionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -537,6 +566,7 @@ const styles = StyleSheet.create({
   recipientOptions: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    marginBottom: Layout.spacing.md,
   },
   recipientOption: {
     flex: 1,
@@ -558,6 +588,26 @@ const styles = StyleSheet.create({
   },
   activeRecipientOptionText: {
     color: Colors.primary.main,
+  },
+  phoneInputContainer: {
+    marginTop: Layout.spacing.md,
+  },
+  phoneInputLabel: {
+    fontFamily: 'Roboto-Regular',
+    fontSize: FontSizes.md,
+    color: Colors.text.secondary,
+    marginBottom: Layout.spacing.sm,
+  },
+  phoneInput: {
+    backgroundColor: Colors.background.default,
+    borderRadius: Layout.borderRadius.md,
+    borderWidth: 1,
+    borderColor: Colors.grey[300],
+    paddingHorizontal: Layout.spacing.md,
+    paddingVertical: Layout.spacing.sm,
+    fontFamily: 'Roboto-Regular',
+    fontSize: FontSizes.md,
+    color: Colors.text.primary,
   },
   purchaseBar: {
     position: 'absolute',

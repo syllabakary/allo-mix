@@ -18,7 +18,7 @@ export default function RechargeCard({ operator, amount, date, type, success }: 
     <View style={styles.container}>
       <View style={styles.leftContent}>
         <Text style={styles.operatorText}>{operator}</Text>
-        <Text style={styles.amountText}>${amount.toFixed(2)}</Text>
+        <Text style={styles.amountText}>F CFA{amount.toFixed(2)}</Text>
         <Text style={styles.typeText}>{type}</Text>
       </View>
       
@@ -28,12 +28,12 @@ export default function RechargeCard({ operator, amount, date, type, success }: 
           {success ? (
             <>
               <CheckCircle2 color={Colors.success.main} size={16} />
-              <Text style={[styles.statusText, styles.successText]}>Successful</Text>
+              <Text style={[styles.statusText, styles.successText]}>Succès</Text>
             </>
           ) : (
             <>
               <XCircle color={Colors.error.main} size={16} />
-              <Text style={[styles.statusText, styles.failedText]}>Failed</Text>
+              <Text style={[styles.statusText, styles.failedText]}>Rejeter</Text>
             </>
           )}
         </View>
