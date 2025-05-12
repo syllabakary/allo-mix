@@ -57,7 +57,7 @@ export default function PackageCard({ packageData, featured, onPress }: PackageC
       </View>
       
       <View style={styles.footer}>
-        <Text style={styles.price}>${packageData.price.toFixed(2)}</Text>
+        <Text style={styles.price}>{packageData.price.toFixed(2)} F CFA</Text>
         <View style={styles.viewButton}>
           <Text style={styles.viewButtonText}>Voir</Text>
         </View>

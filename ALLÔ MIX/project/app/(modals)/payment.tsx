@@ -27,6 +27,16 @@ const PAYMENT_METHODS = [
         id: 'moov',
         name: 'Moov Money',
         logo: 'https://seeklogo.com/images/M/moov-africa-logo-459FC30F68-seeklogo.com.png'
+      },
+      {
+        id: 'wave',
+        name: 'Wave',
+        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Wave_logo.svg/1200px-Wave_logo.svg.png'
+      },
+      {
+        id: 'free',
+        name: 'Free Money',
+        logo: 'https://upload.wikimedia.org/wikipedia/fr/thumb/d/d2/Free_Logo.svg/1200px-Free_Logo.svg.png'
       }
     ]
   },
@@ -38,13 +48,13 @@ const PAYMENT_METHODS = [
   },
   {
     id: 'card',
-    name: 'Bank Card',
+    name: 'Carte Bancaire',
     icon: <CreditCard color={Colors.secondary.main} size={24} />,
     providers: []
   },
   {
     id: 'crypto',
-    name: 'Cryptocurrency',
+    name: 'Cryptomonnaie',
     icon: <Bitcoin color={Colors.secondary.main} size={24} />,
     providers: []
   }
@@ -97,13 +107,13 @@ export default function PaymentScreen() {
   if (paymentSuccess) {
     return (
       <View style={styles.container}>
-        <Header title="Payment" showBack />
+        <Header title="Paiement" showBack />
         <View style={styles.successContainer}>
           <View style={styles.successIcon}>
             <Check color={Colors.common.white} size={48} />
           </View>
-          <Text style={styles.successTitle}>Payment Successful!</Text>
-          <Text style={styles.successMessage}>Your payment has been processed successfully.</Text>
+          <Text style={styles.successTitle}>Paiement réussi !</Text>
+          <Text style={styles.successMessage}>Votre paiement a été traité avec succès.</Text>
         </View>
       </View>
     );
@@ -111,40 +121,40 @@ export default function PaymentScreen() {
 
   return (
     <View style={styles.container}>
-      <Header title="Payment" showBack />
+      <Header title="Paiement" showBack />
       
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollViewContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Order Summary */}
+        {/* Résumé de la commande */}
         <View style={styles.summaryCard}>
-          <Text style={styles.summaryTitle}>Order Summary</Text>
+          <Text style={styles.summaryTitle}>Résumé de la commande</Text>
           
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Package</Text>
+            <Text style={styles.summaryLabel}>Forfait</Text>
             <Text style={styles.summaryValue}>{name}</Text>
           </View>
           
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Recipient</Text>
+            <Text style={styles.summaryLabel}>Bénéficiaire</Text>
             <Text style={styles.summaryValue}>
-              {recipient === 'self' ? 'Myself' : 'Other Person'}
+              {recipient === 'self' ? 'Moi-même' : 'Autre personne'}
             </Text>
           </View>
           
           <View style={styles.divider} />
           
           <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>Total Amount</Text>
-            <Text style={styles.totalValue}>F CFA{amount}</Text>
+            <Text style={styles.totalLabel}>Montant total</Text>
+            <Text style={styles.totalValue}>{amount} F CFA</Text>
           </View>
         </View>
         
-        {/* Payment Methods */}
+        {/* Méthodes de paiement */}
         <View style={styles.paymentMethodsCard}>
-          <Text style={styles.paymentTitle}>Payment Method</Text>
+          <Text style={styles.paymentTitle}>Méthode de paiement</Text>
           
           {PAYMENT_METHODS.map(method => (
             <TouchableOpacity
@@ -172,10 +182,10 @@ export default function PaymentScreen() {
           ))}
         </View>
         
-        {/* Provider Selection (for Mobile Money) */}
+        {/* Sélection de l'opérateur (pour Mobile Money) */}
         {selectedMethod === 'mobile_money' && (
           <View style={styles.providersCard}>
-            <Text style={styles.providersTitle}>Select Provider</Text>
+            <Text style={styles.providersTitle}>Sélectionnez un opérateur</Text>
             
             <View style={styles.providersContainer}>
               {selectedMethodData?.providers.map(provider => (
@@ -207,15 +217,15 @@ export default function PaymentScreen() {
           </View>
         )}
         
-        {/* Mobile Money Phone Number Input */}
+        {/* Saisie du numéro Mobile Money */}
         {selectedMethod === 'mobile_money' && selectedProvider && (
           <View style={styles.phoneInputCard}>
-            <Text style={styles.phoneInputTitle}>Enter Mobile Money Number</Text>
+            <Text style={styles.phoneInputTitle}>Entrez votre numéro Mobile Money</Text>
             
             <View style={styles.phoneInputContainer}>
               <TextInput
                 style={styles.phoneInput}
-                placeholder="Phone number"
+                placeholder="Numéro de téléphone"
                 value={phoneNumber}
                 onChangeText={setPhoneNumber}
                 keyboardType="phone-pad"
@@ -223,21 +233,21 @@ export default function PaymentScreen() {
             </View>
             
             <Text style={styles.phoneInputHelp}>
-              Enter the phone number associated with your mobile money account
+              Entrez le numéro associé à votre compte Mobile Money
             </Text>
           </View>
         )}
         
-        {/* Payment Instructions */}
+        {/* Instructions de paiement */}
         <View style={styles.instructionsCard}>
-          <Text style={styles.instructionsTitle}>Payment Instructions</Text>
+          <Text style={styles.instructionsTitle}>Instructions de paiement</Text>
           
           <View style={styles.instructionStep}>
             <View style={styles.instructionNumber}>
               <Text style={styles.instructionNumberText}>1</Text>
             </View>
             <Text style={styles.instructionText}>
-              Click on "Pay Now" to initiate payment
+              Cliquez sur "Payer maintenant" pour initier le paiement
             </Text>
           </View>
           
@@ -246,7 +256,7 @@ export default function PaymentScreen() {
               <Text style={styles.instructionNumberText}>2</Text>
             </View>
             <Text style={styles.instructionText}>
-              You'll receive a prompt on your phone to confirm payment
+              Vous recevrez une demande de confirmation sur votre téléphone
             </Text>
           </View>
           
@@ -255,13 +265,13 @@ export default function PaymentScreen() {
               <Text style={styles.instructionNumberText}>3</Text>
             </View>
             <Text style={styles.instructionText}>
-              Enter your PIN to authorize the transaction
+              Entrez votre code PIN pour autoriser la transaction
             </Text>
           </View>
         </View>
       </ScrollView>
       
-      {/* Payment Button */}
+      {/* Bouton de paiement */}
       <View style={styles.paymentButtonContainer}>
         <TouchableOpacity 
           style={[
@@ -273,7 +283,7 @@ export default function PaymentScreen() {
           disabled={(!phoneNumber && selectedMethod === 'mobile_money') || processingPayment}
         >
           <Text style={styles.paymentButtonText}>
-            {processingPayment ? 'Processing...' : 'Pay Now'}
+            {processingPayment ? 'Traitement en cours...' : 'Payer maintenant'}
           </Text>
         </TouchableOpacity>
       </View>
@@ -291,7 +301,7 @@ const styles = StyleSheet.create({
   },
   scrollViewContent: {
     paddingHorizontal: Layout.spacing.lg,
-    paddingBottom: 100, // To account for the fixed bottom button
+    paddingBottom: 100, // Pour le bouton fixe en bas
   },
   summaryCard: {
     backgroundColor: Colors.background.paper,

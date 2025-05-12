@@ -11,12 +11,23 @@ interface MenuOptionProps {
   onPress: () => void;
   showBadge?: boolean;
   badgeText?: string;
+  isLastItem?: boolean;
 }
 
-export default function MenuOption({ icon, title, onPress, showBadge = false, badgeText }: MenuOptionProps) {
+export default function MenuOption({ 
+  icon, 
+  title, 
+  onPress, 
+  showBadge = false, 
+  badgeText,
+  isLastItem = false 
+}: MenuOptionProps) {
   return (
     <TouchableOpacity 
-      style={styles.container}
+      style={[
+        styles.container,
+        isLastItem && styles.lastItem
+      ]}
       onPress={onPress}
     >
       <View style={styles.leftContent}>
@@ -47,13 +58,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: Layout.spacing.lg,
     borderBottomWidth: 1,
     borderBottomColor: Colors.grey[200],
+    backgroundColor: Colors.background.paper,
+  },
+  lastItem: {
+    borderBottomWidth: 0,
   },
   leftContent: {
     flexDirection: 'row',
     alignItems: 'center',
+    flex: 1,
   },
   iconContainer: {
     marginRight: Layout.spacing.md,
+    width: 24,
+    alignItems: 'center',
   },
   title: {
     fontFamily: 'Roboto-Medium',
@@ -66,14 +84,18 @@ const styles = StyleSheet.create({
   },
   badge: {
     backgroundColor: Colors.primary.main,
-    borderRadius: Layout.borderRadius.round,
+    borderRadius: 12,
     paddingHorizontal: Layout.spacing.sm,
-    paddingVertical: Layout.spacing.xs,
+    paddingVertical: 2,
     marginRight: Layout.spacing.sm,
+    minWidth: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   badgeText: {
-    fontFamily: 'Roboto-Medium',
+    fontFamily: 'Roboto-Bold',
     fontSize: FontSizes.xs,
     color: Colors.common.white,
+    includeFontPadding: false,
   },
 });

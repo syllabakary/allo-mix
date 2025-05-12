@@ -25,9 +25,9 @@ export default function TransactionItem({ transaction }: TransactionProps) {
     Colors.error.main;
   
   const statusText = 
-    transaction.status === 'completed' ? 'Completed' :
-    transaction.status === 'pending' ? 'Pending' :
-    'Failed';
+    transaction.status === 'completed' ? 'Terminé' :
+    transaction.status === 'pending' ? 'En attente' :
+    'Échoué';
 
   return (
     <TouchableOpacity style={styles.container}>
@@ -35,13 +35,13 @@ export default function TransactionItem({ transaction }: TransactionProps) {
         <Text style={styles.typeText}>{transaction.type}</Text>
         <Text style={styles.operatorText}>{transaction.operator}</Text>
         <Text style={styles.recipientText}>
-          {transaction.recipient === 'Self' ? 'For yourself' : `To: F CFA{transaction.recipient}`}
+          {transaction.recipient === 'Self' ? 'Pour vous-même' : `À: ${transaction.recipient}`}
         </Text>
       </View>
       
       <View style={styles.rightContent}>
-        <Text style={styles.amountText}>F CFA{transaction.amount.toFixed(2)}</Text>
-        <Text style={styles.dateText}>{new Date(transaction.date).toLocaleDateString()}</Text>
+        <Text style={styles.amountText}>{transaction.amount.toFixed(2)} F CFA</Text>
+        <Text style={styles.dateText}>{new Date(transaction.date).toLocaleDateString('fr-FR')}</Text>
         <View style={styles.statusContainer}>
           <View 
             style={[

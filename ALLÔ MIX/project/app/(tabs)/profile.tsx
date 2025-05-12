@@ -11,14 +11,14 @@ import { router } from 'expo-router';
 export default function ProfileScreen() {
   return (
     <View style={styles.container}>
-      <Header title="Profil" showBack={false} />
+      <Header title="Mon Profil" showBack={false} />
       
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollViewContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Profile Header */}
+        {/* En-tête du profil */}
         <View style={styles.profileSection}>
           <View style={styles.profileImageContainer}>
             <Image 
@@ -27,25 +27,29 @@ export default function ProfileScreen() {
             />
           </View>
           
-          <Text style={styles.profileName}>Sarah Johnson</Text>
-          <Text style={styles.profilePhone}>+1 234 567 8901</Text>
+          <Text style={styles.profileName}>Jean Dupont</Text>
+          <Text style={styles.profilePhone}>+225 07 07 07 07 07</Text>
           
-          <TouchableOpacity style={styles.editButton}>
-            <Text style={styles.editButtonText}>Modifier le profil</Text>
+          <TouchableOpacity 
+            style={styles.editButton}
+            onPress={() => router.push('/(modals)/edit-profile')}
+          >
+            <Text style={styles.editButtonText}>Modifier mon profil</Text>
+            <ChevronRight color={Colors.primary.main} size={16} />
           </TouchableOpacity>
         </View>
         
-        {/* Referral Card */}
+        {/* Carte de parrainage */}
         <View style={styles.referralCard}>
           <View style={styles.referralContent}>
             <View>
-              <Text style={styles.referralTitle}>Inviter des amis</Text>
+              <Text style={styles.referralTitle}>Parrainez vos amis</Text>
               <Text style={styles.referralDescription}>
-                Partagez et gagnez 3 000 F CFA pour chaque ami qui s'inscrit !
+                Gagnez 3 000 F CFA pour chaque ami qui rejoint Allô Mix !
               </Text>
             </View>
             
-            <View style={styles.referralImageContainer}>
+            <View style={styles.referralIconContainer}>
               <Gift color={Colors.primary.main} size={40} />
             </View>
           </View>
@@ -54,65 +58,65 @@ export default function ProfileScreen() {
             style={styles.referralButton}
             onPress={() => router.push('/(modals)/referral')}
           >
-            <Text style={styles.referralButtonText}>Partager le lien de parrainage</Text>
-            <Share2 color={Colors.background.paper} size={16} />
+            <Text style={styles.referralButtonText}>Partager mon lien</Text>
+            <Share2 color={Colors.common.white} size={16} />
           </TouchableOpacity>
         </View>
         
-        {/* Menu Section: Account */}
+        {/* Section : Mon compte */}
         <View style={styles.menuSection}>
-          <Text style={styles.menuSectionTitle}>Compte</Text>
+          <Text style={styles.menuSectionTitle}>Mon compte</Text>
           
           <View style={styles.menuCard}>
             <MenuOption 
-              icon={<User color={Colors.secondary.main} size={20} />}
+              icon={<User color={Colors.primary.main} size={20} />}
               title="Informations personnelles"
-              onPress={() => {}}
+              onPress={() => router.push('/(modals)/personal-info')}
             />
             <MenuOption 
-              icon={<CreditCard color={Colors.secondary.main} size={20} />}
-              title="Méthodes de paiement"
+              icon={<CreditCard color={Colors.primary.main} size={20} />}
+              title="Moyens de paiement"
               onPress={() => router.push('/(modals)/payment-methods')}
             />
             <MenuOption 
-              icon={<Gift color={Colors.secondary.main} size={20} />}
-              title="Récompenses et parrainages"
-              onPress={() => router.push('/(modals)/referral')}
+              icon={<Gift color={Colors.primary.main} size={20} />}
+              title="Mes récompenses"
+              onPress={() => router.push('/(modals)/rewards')}
               showBadge
               badgeText="3"
             />
           </View>
         </View>
         
-        {/* Menu Section: Support */}
+        {/* Section : Assistance */}
         <View style={styles.menuSection}>
           <Text style={styles.menuSectionTitle}>Assistance</Text>
           
           <View style={styles.menuCard}>
             <MenuOption 
-              icon={<MessageCircle color={Colors.secondary.main} size={20} />}
+              icon={<MessageCircle color={Colors.primary.main} size={20} />}
               title="Centre d'aide"
-              onPress={() => router.push('/(modals)/help')}
+              onPress={() => router.push('/(modals)/help-center')}
             />
             <MenuOption 
-              icon={<Settings color={Colors.secondary.main} size={20} />}
+              icon={<Settings color={Colors.primary.main} size={20} />}
               title="Paramètres"
-              onPress={() => {}}
+              onPress={() => router.push('/(modals)/settings')}
             />
           </View>
         </View>
         
-        {/* Sign Out Button */}
+        {/* Bouton de déconnexion */}
         <TouchableOpacity 
           style={styles.signOutButton}
-          onPress={() => router.replace('/(onboarding)')}
+          onPress={() => router.replace('/(auth)/login')}
         >
           <LogOut color={Colors.error.main} size={20} />
-          <Text style={styles.signOutText}>Se déconnecter</Text>
+          <Text style={styles.signOutText}>Déconnexion</Text>
         </TouchableOpacity>
         
-        {/* App Version */}
-        <Text style={styles.versionText}>TeleRecharge v1.0.0</Text>
+        {/* Version de l'application */}
+        <Text style={styles.versionText}>Allô Mix v1.0.0</Text>
       </ScrollView>
     </View>
   );
@@ -132,15 +136,19 @@ const styles = StyleSheet.create({
   },
   profileSection: {
     alignItems: 'center',
-    marginVertical: Layout.spacing.lg,
+    marginVertical: Layout.spacing.xl,
   },
   profileImageContainer: {
     width: 100,
     height: 100,
     borderRadius: 50,
-    overflow: 'hidden',
     backgroundColor: Colors.grey[200],
+    justifyContent: 'center',
+    alignItems: 'center',
     marginBottom: Layout.spacing.md,
+    overflow: 'hidden',
+    borderWidth: 2,
+    borderColor: Colors.primary.light,
   },
   profileImage: {
     width: '100%',
@@ -153,34 +161,32 @@ const styles = StyleSheet.create({
     marginBottom: Layout.spacing.xs,
   },
   profilePhone: {
-    fontFamily: 'Roboto-Regular',
+    fontFamily: 'Poppins-Regular',
     fontSize: FontSizes.md,
     color: Colors.text.secondary,
     marginBottom: Layout.spacing.md,
   },
   editButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingVertical: Layout.spacing.sm,
     paddingHorizontal: Layout.spacing.md,
-    backgroundColor: Colors.background.paper,
+    backgroundColor: Colors.primary.light + '20',
     borderRadius: Layout.borderRadius.md,
-    borderWidth: 1,
-    borderColor: Colors.primary.main,
   },
   editButtonText: {
-    fontFamily: 'Roboto-Medium',
+    fontFamily: 'Poppins-Medium',
     fontSize: FontSizes.md,
     color: Colors.primary.main,
+    marginRight: Layout.spacing.xs,
   },
   referralCard: {
-    backgroundColor: Colors.background.paper,
-    borderRadius: Layout.borderRadius.md,
-    padding: Layout.spacing.md,
+    backgroundColor: Colors.primary.light + '10',
+    borderRadius: Layout.borderRadius.lg,
+    padding: Layout.spacing.lg,
     marginBottom: Layout.spacing.xl,
-    shadowColor: Colors.grey[800],
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    borderWidth: 1,
+    borderColor: Colors.primary.light + '30',
   },
   referralContent: {
     flexDirection: 'row',
@@ -195,31 +201,31 @@ const styles = StyleSheet.create({
     marginBottom: Layout.spacing.xs,
   },
   referralDescription: {
-    fontFamily: 'Roboto-Regular',
+    fontFamily: 'Poppins-Regular',
     fontSize: FontSizes.md,
     color: Colors.text.secondary,
-    maxWidth: '80%',
+    maxWidth: '75%',
   },
-  referralImageContainer: {
+  referralIconContainer: {
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: Colors.primary.light,
-    alignItems: 'center',
+    backgroundColor: Colors.primary.light + '30',
     justifyContent: 'center',
+    alignItems: 'center',
   },
   referralButton: {
-    backgroundColor: Colors.primary.main,
-    borderRadius: Layout.borderRadius.md,
-    paddingVertical: Layout.spacing.md,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: Colors.primary.main,
+    borderRadius: Layout.borderRadius.md,
+    padding: Layout.spacing.md,
   },
   referralButtonText: {
     fontFamily: 'Poppins-SemiBold',
     fontSize: FontSizes.md,
-    color: Colors.primary.contrastText,
+    color: Colors.common.white,
     marginRight: Layout.spacing.sm,
   },
   menuSection: {
@@ -233,24 +239,24 @@ const styles = StyleSheet.create({
   },
   menuCard: {
     backgroundColor: Colors.background.paper,
-    borderRadius: Layout.borderRadius.md,
+    borderRadius: Layout.borderRadius.lg,
     overflow: 'hidden',
     shadowColor: Colors.grey[800],
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
     elevation: 1,
   },
   signOutButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: Colors.background.paper,
+    backgroundColor: Colors.error.light + '20',
     borderRadius: Layout.borderRadius.md,
-    paddingVertical: Layout.spacing.md,
-    marginBottom: Layout.spacing.lg,
+    padding: Layout.spacing.md,
+    marginBottom: Layout.spacing.xl,
     borderWidth: 1,
-    borderColor: Colors.error.main,
+    borderColor: Colors.error.light,
   },
   signOutText: {
     fontFamily: 'Poppins-Medium',
@@ -259,10 +265,9 @@ const styles = StyleSheet.create({
     marginLeft: Layout.spacing.sm,
   },
   versionText: {
-    fontFamily: 'Roboto-Regular',
+    fontFamily: 'Poppins-Regular',
     fontSize: FontSizes.sm,
     color: Colors.text.secondary,
     textAlign: 'center',
-    marginBottom: Layout.spacing.xl,
   },
 });

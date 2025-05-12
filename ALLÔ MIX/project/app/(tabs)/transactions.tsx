@@ -6,163 +6,123 @@ import TransactionItem from '@/components/transactions/TransactionItem';
 import Colors from '@/constants/Colors';
 import Layout from '@/constants/Layout';
 import FontSizes from '@/constants/FontSizes';
-import { useTranslation } from 'react-i18next';
 
+// Fonction de formatage sécurisée
+const formatMontant = (montant?: number): string => {
+  if (typeof montant !== 'number' || isNaN(montant)) {
+    return 'Montant indisponible';
+  }
+  return new Intl.NumberFormat('fr-FR', {
+    style: 'currency',
+    currency: 'XOF',
+    minimumFractionDigits: 0
+  }).format(montant).replace('XOF', 'F CFA');
+};
 
-const formatCurrency = (amount: number) =>
-  `${amount.toLocaleString('fr-FR', { minimumFractionDigits: 0 })} FCFA`;
-// Sample transaction data
-const TRANSACTIONS = [
-  {
-    id: '1',
-    type: 'Data Purchase',
-    amount: 5.99,
-    date: '2023-06-15',
-    status: 'completed',
-    operator: 'Orange',
-    recipient: 'Self',
-    details: '3GB Data Bundle - 7 Days'
-  },
-  {
-    id: '2',
-    type: 'Airtime',
-    amount: 10,
-    date: '2023-06-12',
-    status: 'completed',
-    operator: 'MTN',
-    recipient: '+1234567890',
-    details: 'Airtime Top-up'
-  },
-  {
-    id: '3',
-    type: 'SMS Bundle',
-    amount: 2.5,
-    date: '2023-06-10',
-    status: 'pending',
-    operator: 'Moov',
-    recipient: 'Self',
-    details: '200 SMS - 30 Days'
-  },
-  {
-    id: '4',
-    type: 'Data + Voice',
-    amount: 15,
-    date: '2023-06-05',
-    status: 'failed',
-    operator: 'Orange',
-    recipient: 'Self',
-    details: 'Payment Failed - Try Again'
-  },
-  {
-    id: '5',
-    type: 'Data Purchase',
-    amount: 25,
-    date: '2023-06-01',
-    status: 'completed',
-    operator: 'MTN',
-    recipient: '+9876543210',
-    details: '10GB Data Bundle - 30 Days'
-  },
-  {
-    id: '6',
-    type: 'International Calls',
-    amount: 20,
-    date: '2023-05-25',
-    status: 'completed',
-    operator: 'Moov',
-    recipient: 'Self',
-    details: '60 Minutes International Calls'
-  },
-  {
-    id: '7',
-    type: 'Data Purchase',
-    amount: 3.99,
-    date: '2023-05-20',
-    status: 'completed',
-    operator: 'Orange',
-    recipient: 'Self',
-    details: '1GB Data Bundle - 24 Hours'
-  },
-  {
-    id: '8',
-    type: 'Airtime',
-    amount: 5,
-    date: '2023-05-15',
-    status: 'completed',
-    operator: 'MTN',
-    recipient: '+2345678901',
-    details: 'Airtime Top-up'
-  },
+// Interface TypeScript pour les transactions
+interface Transaction {
+  id: string;
+  type: string;
+  amount: number;
+  date: string;
+  status: 'completed' | 'pending' | 'failed';
+  operator: string;
+  recipient: string;
+  details: string;
+}
+
+// Données de transactions
+const TRANSACTIONS: Transaction[] = [
+  // ... vos données existantes ...
 ];
 
-
-
-const TIME_FILTERS = ['All Time', 'This Month', 'Last Month', 'Last 3 Months'];
-const TYPE_FILTERS = ['All Types', 'Data', 'Airtime', 'SMS', 'Combo'];
-const STATUS_FILTERS = ['All Status', 'Completed', 'Pending', 'Failed'];
+const FILTRES_TEMPS = ['Toutes', 'Ce mois', 'Mois dernier', '3 derniers mois'];
 
 export default function TransactionsScreen() {
-  const [selectedTimeFilter, setSelectedTimeFilter] = useState('All Time');
-  const [showTimeFilter, setShowTimeFilter] = useState(false);
-  const [filteredTransactions, setFilteredTransactions] = useState(TRANSACTIONS);
+  const [filtreTemps, setFiltreTemps] = useState<string>('Toutes');
+  const [showFiltreTemps, setShowFiltreTemps] = useState<boolean>(false);
+  const [transactionsFiltrees, setTransactionsFiltrees] = useState<Transaction[]>(TRANSACTIONS);
   
-  const toggleTimeFilter = () => {
-    setShowTimeFilter(!showTimeFilter);
+  const toggleFiltreTemps = () => {
+    setShowFiltreTemps(!showFiltreTemps);
   };
   
-  const selectTimeFilter = (filter: string) => {
-    setSelectedTimeFilter(filter);
-    setShowTimeFilter(false);
+  const selectionnerFiltreTemps = (filtre: string) => {
+    setFiltreTemps(filtre);
+    setShowFiltreTemps(false);
     
-    // Apply filtering logic (simplified for demo)
-    if (filter === 'All Time') {
-      setFilteredTransactions(TRANSACTIONS);
-    } else {
-      // In a real app, you'd filter based on dates
-      const filtered = TRANSACTIONS.filter(t => {
-        if (filter === 'This Month') return t.date.startsWith('2023-06');
-        if (filter === 'Last Month') return t.date.startsWith('2023-05');
-        return true;
-      });
-      setFilteredTransactions(filtered);
+    // Filtrage sécurisé
+    try {
+      let filtered = TRANSACTIONS;
+      if (filtre !== 'Toutes') {
+        const now = new Date();
+        filtered = TRANSACTIONS.filter(t => {
+          const date = new Date(t.date);
+          switch(filtre) {
+            case 'Ce mois':
+              return date.getMonth() === now.getMonth() && 
+                     date.getFullYear() === now.getFullYear();
+            case 'Mois dernier':
+              const lastMonth = new Date(now);
+              lastMonth.setMonth(lastMonth.getMonth() - 1);
+              return date.getMonth() === lastMonth.getMonth() && 
+                     date.getFullYear() === lastMonth.getFullYear();
+            case '3 derniers mois':
+              const threeMonthsAgo = new Date(now);
+              threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+              return date >= threeMonthsAgo;
+            default:
+              return true;
+          }
+        });
+      }
+      setTransactionsFiltrees(filtered);
+    } catch (error) {
+      console.error('Erreur de filtrage:', error);
+      setTransactionsFiltrees(TRANSACTIONS);
     }
   };
 
+  // Calcul sécurisé du total dépensé
+  const totalDepense = transactionsFiltrees
+    .filter(t => t.status === 'completed')
+    .reduce((sum, t) => sum + (t.amount || 0), 0);
+
   return (
     <View style={styles.container}>
-      <Header title="Transaction History" showBack={false} />
+      <Header title="Historique des transactions" showBack={false} />
       
       <View style={styles.content}>
-        {/* Filter Controls */}
+        {/* Filtres */}
         <View style={styles.filterSection}>
           <View style={styles.filterRow}>
             <View style={styles.dropdownContainer}>
               <TouchableOpacity 
                 style={styles.dropdown}
-                onPress={toggleTimeFilter}
+                onPress={toggleFiltreTemps}
               >
-                <Text style={styles.dropdownText}>{selectedTimeFilter}</Text>
+                <Text style={styles.dropdownText}>{filtreTemps}</Text>
                 <ChevronDown color={Colors.grey[700]} size={16} />
               </TouchableOpacity>
               
-              {showTimeFilter && (
+              {showFiltreTemps && (
                 <View style={styles.dropdownMenu}>
-                  {TIME_FILTERS.map((filter) => (
+                  {FILTRES_TEMPS.map((filtre) => (
                     <TouchableOpacity
-                      key={filter}
+                      key={filtre}
                       style={[
                         styles.dropdownItem,
-                        selectedTimeFilter === filter && styles.selectedDropdownItem
+                        filtreTemps === filtre && styles.selectedDropdownItem
                       ]}
-                      onPress={() => selectTimeFilter(filter)}
+                      onPress={() => selectionnerFiltreTemps(filtre)}
                     >
                       <Text 
                         style={[
                           styles.dropdownItemText,
-                          selectedTimeFilter === filter && styles.selectedDropdownItemText
+                          filtreTemps === filtre && styles.selectedDropdownItemText
                         ]}
                       >
-                        {filter}
+                        {filtre}
                       </Text>
                     </TouchableOpacity>
                   ))}
@@ -170,42 +130,59 @@ export default function TransactionsScreen() {
               )}
             </View>
             
-            <TouchableOpacity style={styles.iconButton}>
+            <TouchableOpacity 
+              style={styles.iconButton}
+              onPress={() => console.log('Filtres avancés')}
+            >
               <Filter color={Colors.text.primary} size={20} />
             </TouchableOpacity>
             
-            <TouchableOpacity style={styles.iconButton}>
+            <TouchableOpacity 
+              style={styles.iconButton}
+              onPress={() => console.log('Exporter')}
+            >
               <Download color={Colors.text.primary} size={20} />
             </TouchableOpacity>
           </View>
         </View>
         
-        {/* Summary Cards */}
+        {/* Cartes récapitulatives */}
         <View style={styles.summaryContainer}>
           <View style={[styles.summaryCard, { backgroundColor: Colors.primary.main }]}>
-            <Text style={styles.summaryLabel}>Total Spent</Text>
-            <Text style={styles.summaryValue}>F CFA 87.48</Text>
+            <Text style={styles.summaryLabel}>Total dépensé</Text>
+            <Text style={styles.summaryValue}>{formatMontant(totalDepense)}</Text>
           </View>
           
           <View style={[styles.summaryCard, { backgroundColor: Colors.secondary.main }]}>
             <Text style={styles.summaryLabel}>Transactions</Text>
-            <Text style={styles.summaryValue}>{filteredTransactions.length}</Text>
+            <Text style={styles.summaryValue}>{transactionsFiltrees.length}</Text>
           </View>
         </View>
         
-        {/* Transactions List */}
+        {/* Liste des transactions */}
         <View style={styles.transactionsContainer}>
-          <Text style={styles.transactionsTitle}>Transactions</Text>
+          <Text style={styles.transactionsTitle}>Détail des transactions</Text>
           
-          <FlatList
-            data={filteredTransactions}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-              <TransactionItem transaction={item} />
-            )}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.transactionsList}
-          />
+          {transactionsFiltrees.length > 0 ? (
+            <FlatList
+              data={transactionsFiltrees}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item }) => (
+                <TransactionItem 
+                  transaction={{
+                    ...item,
+                    formattedAmount: formatMontant(item.amount)
+                  }} 
+                />
+              )}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={styles.transactionsList}
+            />
+          ) : (
+            <View style={styles.emptyState}>
+              <Text style={styles.emptyText}>Aucune transaction trouvée</Text>
+            </View>
+          )}
         </View>
       </View>
     </View>
@@ -246,7 +223,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.grey[200],
   },
   dropdownText: {
-    fontFamily: 'Roboto-Medium',
+    fontFamily: 'Poppins-Medium',
     fontSize: FontSizes.md,
     color: Colors.text.primary,
   },
@@ -272,15 +249,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: Layout.spacing.md,
   },
   selectedDropdownItem: {
-    backgroundColor: Colors.primary.light,
+    backgroundColor: Colors.primary.light + '20',
   },
   dropdownItemText: {
-    fontFamily: 'Roboto-Regular',
+    fontFamily: 'Poppins-Regular',
     fontSize: FontSizes.md,
     color: Colors.text.primary,
   },
   selectedDropdownItemText: {
-    fontFamily: 'Roboto-Medium',
+    fontFamily: 'Poppins-SemiBold',
     color: Colors.primary.main,
   },
   iconButton: {
@@ -306,7 +283,7 @@ const styles = StyleSheet.create({
     marginHorizontal: Layout.spacing.xs,
   },
   summaryLabel: {
-    fontFamily: 'Roboto-Regular',
+    fontFamily: 'Poppins-Regular',
     fontSize: FontSizes.sm,
     color: Colors.common.white,
     opacity: 0.8,
@@ -328,5 +305,15 @@ const styles = StyleSheet.create({
   },
   transactionsList: {
     paddingBottom: Layout.spacing.xxl,
+  },
+  emptyState: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  emptyText: {
+    fontFamily: 'Poppins-Regular',
+    fontSize: FontSizes.md,
+    color: Colors.text.secondary,
   },
 });

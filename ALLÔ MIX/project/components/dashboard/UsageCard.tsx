@@ -14,13 +14,18 @@ interface UsageCardProps {
 }
 
 export default function UsageCard({ icon, title, used, total, unit, daysLeft }: UsageCardProps) {
-  // Calculate percentage
-  const percentage = (used / total) * 100;
+  // Calcul du pourcentage
+  const percentage = Math.min(100, (used / total) * 100);
   
+  // Formatage des valeurs numériques
+  const formatValue = (value: number) => {
+    return value.toLocaleString('fr-FR');
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.headerRow}>
-        <View style={styles.iconContainer}>
+        <View style={[styles.iconContainer, { backgroundColor: Colors.primary.light + '20' }]}>
           {icon}
         </View>
         <Text style={styles.title}>{title}</Text>
@@ -28,14 +33,14 @@ export default function UsageCard({ icon, title, used, total, unit, daysLeft }: 
       
       <View style={styles.usageContainer}>
         <Text style={styles.usageText}>
-          <Text style={styles.usedText}>{used}</Text>
+          <Text style={styles.usedText}>{formatValue(used)}</Text>
           <Text style={styles.separator}> / </Text>
-          <Text>{total}</Text>
+          <Text>{formatValue(total)}</Text>
           <Text> {unit}</Text>
         </Text>
         
         <Text style={styles.daysText}>
-          {daysLeft} days left
+          {daysLeft} {daysLeft > 1 ? 'jours restants' : 'jour restant'}
         </Text>
       </View>
       
@@ -44,11 +49,12 @@ export default function UsageCard({ icon, title, used, total, unit, daysLeft }: 
           <View 
             style={[
               styles.progressFill,
-              { width: `F CFA{percentage}%` },
+              { width: `${percentage}%` },
               percentage > 80 && styles.progressWarning
             ]}
           />
         </View>
+        <Text style={styles.percentageText}>{Math.round(percentage)}%</Text>
       </View>
     </View>
   );
@@ -57,14 +63,14 @@ export default function UsageCard({ icon, title, used, total, unit, daysLeft }: 
 const styles = StyleSheet.create({
   container: {
     backgroundColor: Colors.background.paper,
-    borderRadius: Layout.borderRadius.md,
+    borderRadius: Layout.borderRadius.lg,
     padding: Layout.spacing.md,
     marginRight: Layout.spacing.md,
-    width: 160,
+    width: 180,
     shadowColor: Colors.grey[800],
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowRadius: 6,
     elevation: 2,
   },
   headerRow: {
@@ -73,10 +79,15 @@ const styles = StyleSheet.create({
     marginBottom: Layout.spacing.sm,
   },
   iconContainer: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
     marginRight: Layout.spacing.sm,
   },
   title: {
-    fontFamily: 'Poppins-Medium',
+    fontFamily: 'Poppins-SemiBold',
     fontSize: FontSizes.md,
     color: Colors.text.primary,
   },
@@ -84,31 +95,35 @@ const styles = StyleSheet.create({
     marginBottom: Layout.spacing.sm,
   },
   usageText: {
-    fontFamily: 'Roboto-Regular',
+    fontFamily: 'Poppins-Regular',
     fontSize: FontSizes.md,
     color: Colors.text.secondary,
   },
   usedText: {
     fontFamily: 'Poppins-SemiBold',
-    color: Colors.text.primary,
+    color: Colors.primary.main,
   },
   separator: {
     color: Colors.grey[400],
   },
   daysText: {
-    fontFamily: 'Roboto-Regular',
+    fontFamily: 'Poppins-Regular',
     fontSize: FontSizes.sm,
     color: Colors.text.secondary,
     marginTop: Layout.spacing.xs,
   },
   progressBarContainer: {
-    marginTop: Layout.spacing.xs,
+    marginTop: Layout.spacing.sm,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   progressBar: {
-    height: 4,
+    flex: 1,
+    height: 6,
     backgroundColor: Colors.grey[200],
     borderRadius: Layout.borderRadius.round,
     overflow: 'hidden',
+    marginRight: Layout.spacing.sm,
   },
   progressFill: {
     height: '100%',
@@ -117,5 +132,12 @@ const styles = StyleSheet.create({
   },
   progressWarning: {
     backgroundColor: Colors.error.main,
+  },
+  percentageText: {
+    fontFamily: 'Poppins-Medium',
+    fontSize: FontSizes.sm,
+    color: Colors.text.secondary,
+    minWidth: 30,
+    textAlign: 'right',
   },
 });

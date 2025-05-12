@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, FlatList } from 'react-native';
-import { Search, Filter, Tag } from 'lucide-react-native';
+import React, { useState, useMemo } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Dimensions } from 'react-native';
+import { Search, Filter } from 'lucide-react-native';
 import Header from '@/components/common/Header';
 import PackageCard from '@/components/packages/PackageCard';
 import FilterChip from '@/components/packages/FilterChip';
@@ -9,93 +9,203 @@ import Layout from '@/constants/Layout';
 import FontSizes from '@/constants/FontSizes';
 import { router } from 'expo-router';
 
-// Données d'exemple pour les forfaits
-const PACKAGES = [
+const { width } = Dimensions.get('window');
+const isSmallScreen = width < 375;
+
+interface Package {
+  id: string;
+  name: string;
+  operator: string;
+  data: string;
+  validity: string;
+  price: number;
+  description: string;
+  popular: boolean;
+  type: string;
+  category: 'internet' | 'appels' | 'mixte';
+}
+
+const PACKAGES: Package[] = [
+  // ORANGE CI
   {
     id: '1',
-    name: 'Forfait Journalier',
+    name: 'Internet 24h',
     operator: 'Orange',
-    data: '1Go',
-    validity: '1 jour',
-    price: 1300,
-    description: 'Internet rapide pour vos besoins quotidiens',
+    data: '1.5Go',
+    validity: '24h',
+    price: 500,
+    description: '1,5Go + 100Mo la nuit',
     popular: true,
+    type: 'Internet',
+    category: 'internet'
   },
   {
     id: '2',
-    name: 'Social Hebdo',
+    name: 'Appels Illimités',
+    operator: 'Orange',
+    data: '200min',
+    validity: '7 jours',
+    price: 1000,
+    description: 'Vers Orange + 50min autres réseaux',
+    popular: false,
+    type: 'Appels',
+    category: 'appels'
+  },
+
+  // MTN CI
+  {
+    id: '3',
+    name: 'Internet 7J',
     operator: 'MTN',
     data: '3Go',
     validity: '7 jours',
-    price: 3250,
-    description: 'Accès illimité aux réseaux sociaux',
-    popular: false,
-  },
-  {
-    id: '3',
-    name: 'Mensuel Max',
-    operator: 'Orange',
-    data: '20Go',
-    validity: '30 jours',
-    price: 10000,
-    description: 'Notre meilleur forfait mensuel',
+    price: 1500,
+    description: '3Go internet',
     popular: true,
+    type: 'Internet',
+    category: 'internet'
   },
   {
     id: '4',
-    name: 'Appels Illimités',
-    operator: 'Moov',
-    data: '500Mo',
-    validity: '30 jours',
-    price: 6500,
-    description: 'Appels illimités vers tous les réseaux',
+    name: 'Forfait Appels',
+    operator: 'MTN',
+    data: '100min',
+    validity: '3 jours',
+    price: 500,
+    description: '100 min tous réseaux',
     popular: false,
+    type: 'Appels',
+    category: 'appels'
   },
+
+  // MOOV CI
   {
     id: '5',
-    name: 'Forfait Famille',
-    operator: 'MTN',
-    data: '50Go',
-    validity: '30 jours',
-    price: 19500,
-    description: 'Partagez vos données avec jusqu\'à 5 membres de votre famille',
-    popular: true,
+    name: 'Internet Nuit',
+    operator: 'Moov',
+    data: '2Go',
+    validity: 'Nuit',
+    price: 200,
+    description: 'Valable 00h-6h',
+    popular: false,
+    type: 'Internet',
+    category: 'internet'
   },
   {
     id: '6',
-    name: 'Spécial Weekend',
+    name: 'Appels Moov',
     operator: 'Moov',
-    data: '5Go',
-    validity: '2 jours',
-    price: 1950,
-    description: 'Données supplémentaires pour votre weekend',
-    popular: false,
+    data: 'Illimité',
+    validity: '7 jours',
+    price: 1500,
+    description: 'Appels illimités Moov',
+    popular: true,
+    type: 'Appels',
+    category: 'appels'
   },
+
+  // Forfaits combinés
+  {
+    id: '7',
+    name: 'Tout-en-un',
+    operator: 'Orange',
+    data: '5Go + 300min',
+    validity: '30 jours',
+    price: 10000,
+    description: 'Internet + Appels + SMS',
+    popular: true,
+    type: 'Mixte',
+    category: 'mixte'
+  },
+  {
+    id: '8',
+    name: 'Famille',
+    operator: 'MTN',
+    data: '50Go',
+    validity: '30 jours',
+    price: 20000,
+    description: 'Partageable 5 lignes',
+    popular: true,
+    type: 'Mixte',
+    category: 'mixte'
+  }
 ];
+
+const formatPrice = (price: number): string => {
+  return `${price.toLocaleString('fr-FR')} F CFA`; // Formatage en F CFA
+};
 
 export default function PackagesScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeOperator, setActiveOperator] = useState('Tous');
-  const [activeType, setActiveType] = useState('Tous');
+  const [activeCategory, setActiveCategory] = useState('Tous');
   
   const operators = ['Tous', 'Orange', 'MTN', 'Moov'];
-  const packageTypes = ['Tous', 'Internet', 'Appels', 'SMS', 'Mixte'];
-  
-  // Filtrer les forfaits selon la recherche, l'opérateur et le type
-  const filteredPackages = PACKAGES.filter(pkg => {
+  const categories = ['Tous', 'internet', 'appels', 'mixte'];
+
+  const filteredPackages = useMemo(() => PACKAGES.filter(pkg => {
     const matchesSearch = pkg.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          pkg.description.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesOperator = activeOperator === 'Tous' || pkg.operator === activeOperator;
+    const matchesCategory = activeCategory === 'Tous' || pkg.category === activeCategory;
     
-    // Note: Dans une application réelle, vous auriez un champ type à filtrer
-    return matchesSearch && matchesOperator;
-  });
-  
+    return matchesSearch && matchesOperator && matchesCategory;
+  }), [searchQuery, activeOperator, activeCategory]);
+
+  const packagesByCategory = useMemo(() => filteredPackages.reduce((acc, pkg) => {
+    if (!acc[pkg.category]) acc[pkg.category] = [];
+    acc[pkg.category].push(pkg);
+    return acc;
+  }, {} as Record<string, Package[]>), [filteredPackages]);
+
   const selectPackage = (packageId: string) => {
     router.push({
-      pathname: '/(modals)/package-detail',
+      pathname: '/package-detail',
       params: { id: packageId }
     });
+  };
+
+  const renderCategorySection = (category: string) => {
+    const packages = packagesByCategory[category];
+    if (!packages?.length) return null;
+
+    const categoryName = {
+      internet: 'Forfaits Internet',
+      appels: 'Forfaits Appels',
+      mixte: 'Forfaits Combinés'
+    }[category] || category;
+
+    // Regrouper les packages par paires pour une meilleure disposition
+    const rows = [];
+    for (let i = 0; i < packages.length; i += 2) {
+      const row = packages.slice(i, i + 2);
+      rows.push(row);
+    }
+
+    return (
+      <View key={category} style={styles.categorySection}>
+        <Text style={styles.categoryTitle}>{categoryName}</Text>
+        <View style={styles.packagesContainer}>
+          {rows.map((row, rowIndex) => (
+            <View key={`row-${rowIndex}`} style={styles.packageRow}>
+              {row.map((pkg) => (
+                <View key={pkg.id} style={styles.packageWrapper}>
+                  <PackageCard
+                    packageData={{
+                      ...pkg,
+                      formattedPrice: formatPrice(pkg.price)
+                    }}
+                    featured={pkg.popular}
+                    onPress={() => selectPackage(pkg.id)}
+                  />
+                </View>
+              ))}
+              {row.length === 1 && <View style={styles.packageWrapper} />}
+            </View>
+          ))}
+        </View>
+      </View>
+    );
   };
 
   return (
@@ -105,103 +215,81 @@ export default function PackagesScreen() {
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollViewContent}
-        showsVerticalScrollIndicator={false}
+        showsVerticalScrollIndicator={true}
+        bounces={true}
+        scrollEventThrottle={16}
       >
         {/* Barre de recherche */}
         <View style={styles.searchContainer}>
-          <Search color={Colors.grey[500]} size={20} />
+          <Search color={Colors.grey[500]} size={isSmallScreen ? 18 : 20} />
           <TextInput
-            style={styles.searchInput}
-            placeholder="Rechercher des forfaits..."
+            style={[styles.searchInput, { fontSize: isSmallScreen ? FontSizes.sm : FontSizes.md }]}
+            placeholder="Rechercher un forfait..."
+            placeholderTextColor={Colors.grey[500]}
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
           <TouchableOpacity style={styles.filterButton}>
-            <Filter color={Colors.grey[700]} size={20} />
+            <Filter color={Colors.grey[700]} size={isSmallScreen ? 18 : 20} />
           </TouchableOpacity>
         </View>
         
-        {/* Filtres par opérateur */}
-        <View style={styles.filtersSection}>
-          <Text style={styles.filterLabel}>Opérateur</Text>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.filtersScrollContent}
-          >
-            {operators.map((operator) => (
-              <FilterChip
-                key={operator}
-                label={operator}
-                active={activeOperator === operator}
-                onPress={() => setActiveOperator(operator)}
-              />
-            ))}
-          </ScrollView>
-        </View>
-        
-        {/* Filtres par type de forfait */}
-        <View style={styles.filtersSection}>
-          <Text style={styles.filterLabel}>Type de forfait</Text>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.filtersScrollContent}
-          >
-            {packageTypes.map((type) => (
-              <FilterChip
-                key={type}
-                label={type}
-                active={activeType === type}
-                onPress={() => setActiveType(type)}
-              />
-            ))}
-          </ScrollView>
-        </View>
-        
-        {/* Forfaits en vedette */}
-        <View style={styles.sectionContainer}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Forfaits en vedette</Text>
-            <Tag color={Colors.primary.main} size={18} />
-          </View>
-          
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.horizontalPackagesContent}
-          >
-            {filteredPackages
-              .filter(pkg => pkg.popular)
-              .map(pkg => (
-                <PackageCard
-                  key={pkg.id}
-                  packageData={pkg}
-                  featured={true}
-                  onPress={() => selectPackage(pkg.id)}
+        {/* Filtres */}
+        <View style={styles.filtersContainer}>
+          <View style={styles.filterGroup}>
+            <Text style={styles.filterLabel}>Opérateur</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              {operators.map((operator) => (
+                <FilterChip
+                  key={operator}
+                  label={operator}
+                  active={activeOperator === operator}
+                  onPress={() => setActiveOperator(operator)}
+                  compact={isSmallScreen}
                 />
               ))}
-          </ScrollView>
+            </ScrollView>
+          </View>
+          
+          <View style={styles.filterGroup}>
+            <Text style={styles.filterLabel}>Catégorie</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              {categories.map((category) => (
+                <FilterChip
+                  key={category}
+                  label={{
+                    'internet': 'Internet',
+                    'appels': 'Appels',
+                    'mixte': 'Combinés',
+                    'Tous': 'Tous'
+                  }[category] || category}
+                  active={activeCategory === category}
+                  onPress={() => setActiveCategory(category)}
+                  compact={isSmallScreen}
+                />
+              ))}
+            </ScrollView>
+          </View>
         </View>
-        
-        {/* Tous les forfaits */}
-        <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>Tous les forfaits</Text>
-          {filteredPackages.length > 0 ? (
-            filteredPackages.map(pkg => (
-              <PackageCard
-                key={pkg.id}
-                packageData={pkg}
-                featured={false}
-                onPress={() => selectPackage(pkg.id)}
-              />
-            ))
-          ) : (
-            <View style={styles.emptyState}>
-              <Text style={styles.emptyStateText}>Aucun forfait ne correspond à vos critères.</Text>
-            </View>
-          )}
-        </View>
+
+        {/* Forfaits par catégorie */}
+        {Object.keys(packagesByCategory).map(renderCategorySection)}
+
+        {!filteredPackages.length && (
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyStateText}>Aucun forfait trouvé</Text>
+            <TouchableOpacity 
+              style={styles.resetButton}
+              onPress={() => {
+                setActiveOperator('Tous');
+                setActiveCategory('Tous');
+                setSearchQuery('');
+              }}
+            >
+              <Text style={styles.resetButtonText}>Réinitialiser</Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </ScrollView>
     </View>
   );
@@ -216,75 +304,104 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollViewContent: {
-    paddingHorizontal: Layout.spacing.lg,
-    paddingBottom: Layout.spacing.xxl,
+    paddingHorizontal: width < 400 ? 12 : 20,
+    paddingBottom: 120, // Espace supplémentaire en bas pour éviter la superposition
+    paddingTop: 10,
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: Colors.background.paper,
-    borderRadius: Layout.borderRadius.md,
-    paddingHorizontal: Layout.spacing.md,
-    marginVertical: Layout.spacing.lg,
-    height: 50,
-    shadowColor: Colors.grey[800],
+    borderRadius: 12, // Arrondi plus prononcé
+    paddingHorizontal: 16,
+    marginVertical: 16,
+    height: 56, // Hauteur un peu plus grande
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 1,
+    elevation: 3,
   },
   searchInput: {
     flex: 1,
-    fontFamily: 'Roboto-Regular',
-    fontSize: FontSizes.md,
-    marginLeft: Layout.spacing.sm,
-    height: '100%',
+    fontFamily: 'Poppins-Regular',
+    marginLeft: 10,
+    color: Colors.text.primary,
   },
   filterButton: {
-    padding: Layout.spacing.sm,
+    padding: 8,
   },
-  filtersSection: {
-    marginBottom: Layout.spacing.md,
+  filtersContainer: {
+    marginBottom: 20,
+  },
+  filterGroup: {
+    marginBottom: 16,
+    minHeight: 70,
   },
   filterLabel: {
     fontFamily: 'Poppins-Medium',
-    fontSize: FontSizes.md,
+    fontSize: width < 400 ? 14 : 16,
     color: Colors.text.primary,
-    marginBottom: Layout.spacing.sm,
+    marginBottom: 8,
   },
-  filtersScrollContent: {
-    paddingRight: Layout.spacing.lg,
+  categorySection: {
+    marginBottom: 24,
+    backgroundColor: Colors.background.paper,
+    borderRadius: 16,
+    padding: 16,
+    paddingBottom: 8, // Réduit pour éviter trop d'espace
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
+    elevation: 2,
+    overflow: 'visible', // Pour éviter les coupures
   },
-  sectionContainer: {
-    marginVertical: Layout.spacing.lg,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: Layout.spacing.md,
-  },
-  sectionTitle: {
+  categoryTitle: {
     fontFamily: 'Poppins-SemiBold',
-    fontSize: FontSizes.lg,
+    fontSize: width < 400 ? 18 : 20,
     color: Colors.text.primary,
-    marginRight: Layout.spacing.sm,
+    marginBottom: 16,
+    paddingHorizontal: 4,
   },
-  horizontalPackagesContent: {
-    paddingRight: Layout.spacing.lg,
+  packagesContainer: {
+    flexDirection: 'column', // Changé en colonne pour mieux contrôler les lignes
+    justifyContent: 'flex-start',
+    alignItems: 'stretch',
+  },
+  packageRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+    width: '100%',
+  },
+  packageWrapper: {
+    width: '48%', // Deux cartes par ligne
+    height: 'auto', // Hauteur dynamique
   },
   emptyState: {
     alignItems: 'center',
     justifyContent: 'center',
-    height: 150,
+    padding: 24,
     backgroundColor: Colors.background.paper,
-    borderRadius: Layout.borderRadius.md,
-    borderWidth: 1,
-    borderColor: Colors.grey[200],
-    borderStyle: 'dashed',
+    borderRadius: 16,
+    marginTop: 12,
   },
   emptyStateText: {
-    fontFamily: 'Roboto-Regular',
-    fontSize: FontSizes.md,
+    fontFamily: 'Poppins-Regular',
+    fontSize: 16,
     color: Colors.text.secondary,
+    marginBottom: 12,
+  },
+  resetButton: {
+    backgroundColor: Colors.primary.main,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+  },
+  resetButtonText: {
+    fontFamily: 'Poppins-Medium',
+    fontSize: 14,
+    color: '#FFFFFF',
   },
 });
