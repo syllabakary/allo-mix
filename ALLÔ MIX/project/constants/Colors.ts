@@ -15,6 +15,7 @@ const Colors = {
     default: '#F8F9FA', // Tertiary White
     paper: '#FFFFFF',
     dark: '#F0F0F0'
+    
   },
   success: {
     main: '#28A745', // Green

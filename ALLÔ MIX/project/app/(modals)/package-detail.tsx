@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   View, 
   Text, 
@@ -7,7 +7,12 @@ import {
   TouchableOpacity, 
   Image,
   TextInput,
-  Alert
+  Alert,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableWithoutFeedback,
+  Dimensions
 } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { X, Check, TriangleAlert as AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react-native';
@@ -16,7 +21,9 @@ import Colors from '@/constants/Colors';
 import Layout from '@/constants/Layout';
 import FontSizes from '@/constants/FontSizes';
 
-// Données des forfaits en français
+const { width } = Dimensions.get('window');
+
+// Données des forfaits (identique à votre version originale)
 const PACKAGES = [
   {
     id: '1',
@@ -132,6 +139,7 @@ const PACKAGES = [
       'Politique d\'usage équitable applicable'
     ]
   },
+  // ... (vos données PACKAGES existantes)
 ];
 
 export default function PackageDetailScreen() {
@@ -140,25 +148,34 @@ export default function PackageDetailScreen() {
   const [showRestrictions, setShowRestrictions] = useState(true);
   const [recipient, setRecipient] = useState('self');
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
   
   const packageData = PACKAGES.find(pkg => pkg.id === id);
-  
-  // Formatage des nombres en XOF
+
+  // Gestion du clavier
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      'keyboardDidShow', 
+      () => setKeyboardVisible(true)
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      'keyboardDidHide', 
+      () => setKeyboardVisible(false)
+    );
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
+
   const formatXOF = (amount) => {
     return new Intl.NumberFormat('fr-FR').format(amount) + ' XOF';
   };
 
-  // Fonction pour basculer l'affichage des caractéristiques
-  const toggleFeatures = () => {
-    setShowFeatures(!showFeatures);
-  };
+  const toggleFeatures = () => setShowFeatures(!showFeatures);
+  const toggleRestrictions = () => setShowRestrictions(!showRestrictions);
 
-  // Fonction pour basculer l'affichage des restrictions
-  const toggleRestrictions = () => {
-    setShowRestrictions(!showRestrictions);
-  };
-
-  // Fonction pour gérer l'achat
   const handlePurchase = () => {
     if (recipient === 'other' && !phoneNumber) {
       Alert.alert(
@@ -169,7 +186,6 @@ export default function PackageDetailScreen() {
       return;
     }
     
-    // Naviguer vers la page de paiement avec les détails du forfait et du bénéficiaire
     router.push({
       pathname: '/payment',
       params: {
@@ -180,7 +196,6 @@ export default function PackageDetailScreen() {
     });
   };
 
-  // Fonction pour naviguer vers la page de la carte
   const viewCard = () => {
     router.push({
       pathname: '/card',
@@ -209,172 +224,180 @@ export default function PackageDetailScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      <Header title="Détails du forfait" showBack />
-      
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollViewContent}
-      >
-        {/* En-tête du forfait */}
-        <View style={styles.packageHeader}>
-          <View style={styles.operatorLogoContainer}>
-            <Image 
-              source={{ uri: packageData.operatorLogo }} 
-              style={styles.operatorLogo}
-              resizeMode="contain"
-            />
-          </View>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={styles.container}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={styles.container}>
+          <Header title="Détails du forfait" showBack />
           
-          <View style={styles.packageTitleContainer}>
-            <Text style={styles.packageName}>{packageData.name}</Text>
-            <Text style={styles.operatorName}>{packageData.operator}</Text>
-          </View>
-          
-          {packageData.popular && (
-            <View style={styles.popularBadge}>
-              <Text style={styles.popularText}>Populaire</Text>
-            </View>
-          )}
-        </View>
-        
-        {/* Détails du forfait */}
-        <View style={styles.detailsCard}>
-          <Text style={styles.descriptionText}>{packageData.description}</Text>
-          
-          <View style={styles.featureGrid}>
-            <View style={styles.featureItem}>
-              <Text style={styles.featureValue}>{packageData.data}</Text>
-              <Text style={styles.featureLabel}>Internet</Text>
-            </View>
-            
-            <View style={styles.featureItem}>
-              <Text style={styles.featureValue}>{packageData.calls}</Text>
-              <Text style={styles.featureLabel}>Appels</Text>
-            </View>
-            
-            <View style={styles.featureItem}>
-              <Text style={styles.featureValue}>{packageData.sms}</Text>
-              <Text style={styles.featureLabel}>SMS</Text>
-            </View>
-            
-            <View style={styles.featureItem}>
-              <Text style={styles.featureValue}>{packageData.validity}</Text>
-              <Text style={styles.featureLabel}>Validité</Text>
-            </View>
-          </View>
-          
-          {/* Bouton pour voir la carte */}
-          <TouchableOpacity 
-            style={styles.viewCardButton}
-            onPress={viewCard}
+          <ScrollView
+            style={styles.scrollView}
+            contentContainerStyle={[
+              styles.scrollViewContent,
+              keyboardVisible && { paddingBottom: 200 }
+            ]}
+            keyboardShouldPersistTaps="handled"
           >
-            <Text style={styles.viewCardText}>Voir la carte</Text>
-          </TouchableOpacity>
-          
-          {/* Caractéristiques */}
-          <TouchableOpacity 
-            style={styles.accordionHeader}
-            onPress={toggleFeatures}
-          >
-            <Text style={styles.accordionTitle}>Caractéristiques</Text>
-            {showFeatures ? (
-              <ChevronUp color={Colors.text.primary} size={20} />
-            ) : (
-              <ChevronDown color={Colors.text.primary} size={20} />
-            )}
-          </TouchableOpacity>
-          
-          {showFeatures && (
-            <View style={styles.featuresList}>
-              {packageData.features.map((feature, index) => (
-                <View key={index} style={styles.featureRow}>
-                  <Check color={Colors.success.main} size={16} />
-                  <Text style={styles.featureText}>{feature}</Text>
+            {/* En-tête du forfait */}
+            <View style={styles.packageHeader}>
+              <View style={styles.operatorLogoContainer}>
+                <Image 
+                  source={{ uri: packageData.operatorLogo }} 
+                  style={styles.operatorLogo}
+                  resizeMode="contain"
+                />
+              </View>
+              
+              <View style={styles.packageTitleContainer}>
+                <Text style={styles.packageName}>{packageData.name}</Text>
+                <Text style={styles.operatorName}>{packageData.operator}</Text>
+              </View>
+              
+              {packageData.popular && (
+                <View style={styles.popularBadge}>
+                  <Text style={styles.popularText}>Populaire</Text>
                 </View>
-              ))}
+              )}
             </View>
-          )}
-          
-          {/* Restrictions */}
-          <TouchableOpacity 
-            style={styles.accordionHeader}
-            onPress={toggleRestrictions}
-          >
-            <Text style={styles.accordionTitle}>Restrictions</Text>
-            {showRestrictions ? (
-              <ChevronUp color={Colors.text.primary} size={20} />
-            ) : (
-              <ChevronDown color={Colors.text.primary} size={20} />
-            )}
-          </TouchableOpacity>
-          
-          {showRestrictions && (
-            <View style={styles.featuresList}>
-              {packageData.restrictions.map((restriction, index) => (
-                <View key={index} style={styles.featureRow}>
-                  <X color={Colors.error.main} size={16} />
-                  <Text style={styles.restrictionText}>{restriction}</Text>
-                </View>
-              ))}
-            </View>
-          )}
-        </View>
-        
-        {/* Choix du bénéficiaire */}
-        <View style={styles.recipientCard}>
-          <Text style={styles.recipientTitle}>Choisir le bénéficiaire</Text>
-          <View style={styles.recipientOptions}>
-            <TouchableOpacity 
-              style={[styles.recipientOption, recipient === 'self' && styles.activeRecipientOption]}
-              onPress={() => setRecipient('self')}
-            >
-              <Text style={[styles.recipientOptionText, recipient === 'self' && styles.activeRecipientOptionText]}>
-                Pour moi-même
-              </Text>
-            </TouchableOpacity>
             
-            <TouchableOpacity 
-              style={[styles.recipientOption, recipient === 'other' && styles.activeRecipientOption]}
-              onPress={() => setRecipient('other')}
-            >
-              <Text style={[styles.recipientOptionText, recipient === 'other' && styles.activeRecipientOptionText]}>
-                Pour quelqu'un d'autre
-              </Text>
-            </TouchableOpacity>
-          </View>
+            {/* Détails du forfait */}
+            <View style={styles.detailsCard}>
+              <Text style={styles.descriptionText}>{packageData.description}</Text>
+              
+              <View style={styles.featureGrid}>
+                <View style={styles.featureItem}>
+                  <Text style={styles.featureValue}>{packageData.data}</Text>
+                  <Text style={styles.featureLabel}>Internet</Text>
+                </View>
+                
+                <View style={styles.featureItem}>
+                  <Text style={styles.featureValue}>{packageData.calls}</Text>
+                  <Text style={styles.featureLabel}>Appels</Text>
+                </View>
+                
+                <View style={styles.featureItem}>
+                  <Text style={styles.featureValue}>{packageData.sms}</Text>
+                  <Text style={styles.featureLabel}>SMS</Text>
+                </View>
+                
+                <View style={styles.featureItem}>
+                  <Text style={styles.featureValue}>{packageData.validity}</Text>
+                  <Text style={styles.featureLabel}>Validité</Text>
+                </View>
+              </View>
+              
+              <TouchableOpacity 
+                style={styles.viewCardButton}
+                onPress={viewCard}
+              >
+                <Text style={styles.viewCardText}>Voir la carte</Text>
+              </TouchableOpacity>
+              
+              {/* Caractéristiques */}
+              <TouchableOpacity 
+                style={styles.accordionHeader}
+                onPress={toggleFeatures}
+              >
+                <Text style={styles.accordionTitle}>Caractéristiques</Text>
+                {showFeatures ? <ChevronUp color={Colors.text.primary} size={20} /> : <ChevronDown color={Colors.text.primary} size={20} />}
+              </TouchableOpacity>
+              
+              {showFeatures && (
+                <View style={styles.featuresList}>
+                  {packageData.features.map((feature, index) => (
+                    <View key={index} style={styles.featureRow}>
+                      <Check color={Colors.success.main} size={16} />
+                      <Text style={styles.featureText}>{feature}</Text>
+                    </View>
+                  ))}
+                </View>
+              )}
+              
+              {/* Restrictions */}
+              <TouchableOpacity 
+                style={styles.accordionHeader}
+                onPress={toggleRestrictions}
+              >
+                <Text style={styles.accordionTitle}>Restrictions</Text>
+                {showRestrictions ? <ChevronUp color={Colors.text.primary} size={20} /> : <ChevronDown color={Colors.text.primary} size={20} />}
+              </TouchableOpacity>
+              
+              {showRestrictions && (
+                <View style={styles.featuresList}>
+                  {packageData.restrictions.map((restriction, index) => (
+                    <View key={index} style={styles.featureRow}>
+                      <X color={Colors.error.main} size={16} />
+                      <Text style={styles.restrictionText}>{restriction}</Text>
+                    </View>
+                  ))}
+                </View>
+              )}
+            </View>
+            
+            {/* Choix du bénéficiaire */}
+            <View style={styles.recipientCard}>
+              <Text style={styles.recipientTitle}>Choisir le bénéficiaire</Text>
+              <View style={styles.recipientOptions}>
+                <TouchableOpacity 
+                  style={[styles.recipientOption, recipient === 'self' && styles.activeRecipientOption]}
+                  onPress={() => setRecipient('self')}
+                >
+                  <Text style={[styles.recipientOptionText, recipient === 'self' && styles.activeRecipientOptionText]}>
+                    Pour moi-même
+                  </Text>
+                </TouchableOpacity>
+                
+                <TouchableOpacity 
+                  style={[styles.recipientOption, recipient === 'other' && styles.activeRecipientOption]}
+                  onPress={() => setRecipient('other')}
+                >
+                  <Text style={[styles.recipientOptionText, recipient === 'other' && styles.activeRecipientOptionText]}>
+                    Pour quelqu'un d'autre
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              
+              {recipient === 'other' && (
+                <View style={styles.phoneInputContainer}>
+                  <Text style={styles.phoneInputLabel}>Numéro du bénéficiaire</Text>
+                  <TextInput
+                    style={styles.phoneInput}
+                    placeholder="Ex: +225 XX XX XX XX XX"
+                    placeholderTextColor={Colors.grey[500]}
+                    value={phoneNumber}
+                    onChangeText={setPhoneNumber}
+                    keyboardType="phone-pad"
+                    returnKeyType="done"
+                    onSubmitEditing={Keyboard.dismiss}
+                    blurOnSubmit={false}
+                  />
+                </View>
+              )}
+            </View>
+          </ScrollView>
           
-          {/* Champ pour entrer le numéro de téléphone si "Pour quelqu'un d'autre" est sélectionné */}
-          {recipient === 'other' && (
-            <View style={styles.phoneInputContainer}>
-              <Text style={styles.phoneInputLabel}>Numéro du bénéficiaire</Text>
-              <TextInput
-                style={styles.phoneInput}
-                placeholder="Ex: +225 XX XX XX XX XX"
-                value={phoneNumber}
-                onChangeText={setPhoneNumber}
-                keyboardType="phone-pad"
-              />
+          {/* Barre d'achat - cachée quand le clavier est visible */}
+          {!keyboardVisible && (
+            <View style={styles.purchaseBar}>
+              <View style={styles.priceContainer}>
+                <Text style={styles.priceLabel}>Prix</Text>
+                <Text style={styles.priceValue}>{formatXOF(packageData.price)}</Text>
+              </View>
+              
+              <TouchableOpacity 
+                style={styles.purchaseButton}
+                onPress={handlePurchase}
+              >
+                <Text style={styles.purchaseButtonText}>Acheter maintenant</Text>
+              </TouchableOpacity>
             </View>
           )}
         </View>
-      </ScrollView>
-      
-      {/* Barre d'achat */}
-      <View style={styles.purchaseBar}>
-        <View style={styles.priceContainer}>
-          <Text style={styles.priceLabel}>Prix</Text>
-          <Text style={styles.priceValue}>{formatXOF(packageData.price)}</Text>
-        </View>
-        
-        <TouchableOpacity 
-          style={styles.purchaseButton}
-          onPress={handlePurchase}
-        >
-          <Text style={styles.purchaseButtonText}>Acheter maintenant</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -412,7 +435,7 @@ const styles = StyleSheet.create({
   },
   scrollViewContent: {
     paddingHorizontal: Layout.spacing.lg,
-    paddingBottom: 100, // To account for the fixed bottom bar
+    paddingBottom: 120,
   },
   packageHeader: {
     flexDirection: 'row',
@@ -608,6 +631,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Roboto-Regular',
     fontSize: FontSizes.md,
     color: Colors.text.primary,
+    height: 50,
   },
   purchaseBar: {
     position: 'absolute',

@@ -5,12 +5,11 @@ import Header from '@/components/common/Header';
 import PackageCard from '@/components/packages/PackageCard';
 import FilterChip from '@/components/packages/FilterChip';
 import Colors from '@/constants/Colors';
-import Layout from '@/constants/Layout';
 import FontSizes from '@/constants/FontSizes';
 import { router } from 'expo-router';
 
 const { width } = Dimensions.get('window');
-const isSmallScreen = width < 375;
+const CARD_WIDTH = width - 40; // Une carte par ligne
 
 interface Package {
   id: string;
@@ -132,7 +131,7 @@ const PACKAGES: Package[] = [
 ];
 
 const formatPrice = (price: number): string => {
-  return `${price.toLocaleString('fr-FR')} F CFA`; // Formatage en F CFA
+  return `${price.toLocaleString('fr-FR')} F CFA`;
 };
 
 export default function PackagesScreen() {
@@ -152,11 +151,15 @@ export default function PackagesScreen() {
     return matchesSearch && matchesOperator && matchesCategory;
   }), [searchQuery, activeOperator, activeCategory]);
 
-  const packagesByCategory = useMemo(() => filteredPackages.reduce((acc, pkg) => {
-    if (!acc[pkg.category]) acc[pkg.category] = [];
-    acc[pkg.category].push(pkg);
-    return acc;
-  }, {} as Record<string, Package[]>), [filteredPackages]);
+  const packagesByCategory = useMemo(() => {
+    const result: Record<string, Package[]> = {};
+    categories.forEach(cat => {
+      if (cat !== 'Tous') {
+        result[cat] = filteredPackages.filter(pkg => pkg.category === cat);
+      }
+    });
+    return result;
+  }, [filteredPackages]);
 
   const selectPackage = (packageId: string) => {
     router.push({
@@ -169,39 +172,26 @@ export default function PackagesScreen() {
     const packages = packagesByCategory[category];
     if (!packages?.length) return null;
 
-    const categoryName = {
-      internet: 'Forfaits Internet',
-      appels: 'Forfaits Appels',
-      mixte: 'Forfaits Combinés'
-    }[category] || category;
-
-    // Regrouper les packages par paires pour une meilleure disposition
-    const rows = [];
-    for (let i = 0; i < packages.length; i += 2) {
-      const row = packages.slice(i, i + 2);
-      rows.push(row);
-    }
-
     return (
-      <View key={category} style={styles.categorySection}>
-        <Text style={styles.categoryTitle}>{categoryName}</Text>
-        <View style={styles.packagesContainer}>
-          {rows.map((row, rowIndex) => (
-            <View key={`row-${rowIndex}`} style={styles.packageRow}>
-              {row.map((pkg) => (
-                <View key={pkg.id} style={styles.packageWrapper}>
-                  <PackageCard
-                    packageData={{
-                      ...pkg,
-                      formattedPrice: formatPrice(pkg.price)
-                    }}
-                    featured={pkg.popular}
-                    onPress={() => selectPackage(pkg.id)}
-                  />
-                </View>
-              ))}
-              {row.length === 1 && <View style={styles.packageWrapper} />}
-            </View>
+      <View key={category} style={styles.categoryBlock}>
+        <Text style={styles.categoryHeader}>
+          {category === 'internet' ? 'Forfaits Internet' :
+           category === 'appels' ? 'Forfaits Appels' : 
+           'Forfaits Combinés'}
+        </Text>
+        
+        <View style={styles.packagesList}>
+          {packages.map(pkg => (
+            <PackageCard
+              key={pkg.id}
+              packageData={{
+                ...pkg,
+                formattedPrice: formatPrice(pkg.price)
+              }}
+              featured={pkg.popular}
+              onPress={() => selectPackage(pkg.id)}
+              style={styles.packageItem}
+            />
           ))}
         </View>
       </View>
@@ -215,22 +205,20 @@ export default function PackagesScreen() {
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollViewContent}
-        showsVerticalScrollIndicator={true}
-        bounces={true}
-        scrollEventThrottle={16}
+        showsVerticalScrollIndicator={false}
       >
         {/* Barre de recherche */}
         <View style={styles.searchContainer}>
-          <Search color={Colors.grey[500]} size={isSmallScreen ? 18 : 20} />
+          <Search color={Colors.grey[500]} size={20} />
           <TextInput
-            style={[styles.searchInput, { fontSize: isSmallScreen ? FontSizes.sm : FontSizes.md }]}
+            style={styles.searchInput}
             placeholder="Rechercher un forfait..."
             placeholderTextColor={Colors.grey[500]}
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
           <TouchableOpacity style={styles.filterButton}>
-            <Filter color={Colors.grey[700]} size={isSmallScreen ? 18 : 20} />
+            <Filter color={Colors.grey[700]} size={20} />
           </TouchableOpacity>
         </View>
         
@@ -245,7 +233,6 @@ export default function PackagesScreen() {
                   label={operator}
                   active={activeOperator === operator}
                   onPress={() => setActiveOperator(operator)}
-                  compact={isSmallScreen}
                 />
               ))}
             </ScrollView>
@@ -265,15 +252,16 @@ export default function PackagesScreen() {
                   }[category] || category}
                   active={activeCategory === category}
                   onPress={() => setActiveCategory(category)}
-                  compact={isSmallScreen}
                 />
               ))}
             </ScrollView>
           </View>
         </View>
 
-        {/* Forfaits par catégorie */}
-        {Object.keys(packagesByCategory).map(renderCategorySection)}
+        {/* Affichage des catégories */}
+        <View style={styles.categoriesContainer}>
+          {['internet', 'appels', 'mixte'].map(renderCategorySection)}
+        </View>
 
         {!filteredPackages.length && (
           <View style={styles.emptyState}>
@@ -286,7 +274,7 @@ export default function PackagesScreen() {
                 setSearchQuery('');
               }}
             >
-              <Text style={styles.resetButtonText}>Réinitialiser</Text>
+              <Text style={styles.resetButtonText}>Réinitialiser les filtres</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -304,18 +292,17 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollViewContent: {
-    paddingHorizontal: width < 400 ? 12 : 20,
-    paddingBottom: 120, // Espace supplémentaire en bas pour éviter la superposition
-    paddingTop: 10,
+    paddingHorizontal: 20,
+    paddingBottom: 120,
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: Colors.background.paper,
-    borderRadius: 12, // Arrondi plus prononcé
+    borderRadius: 12,
     paddingHorizontal: 16,
     marginVertical: 16,
-    height: 56, // Hauteur un peu plus grande
+    height: 56,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -325,6 +312,7 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontFamily: 'Poppins-Regular',
+    fontSize: FontSizes.md,
     marginLeft: 10,
     color: Colors.text.primary,
   },
@@ -336,48 +324,36 @@ const styles = StyleSheet.create({
   },
   filterGroup: {
     marginBottom: 16,
-    minHeight: 70,
   },
   filterLabel: {
     fontFamily: 'Poppins-Medium',
-    fontSize: width < 400 ? 14 : 16,
+    fontSize: 16,
     color: Colors.text.primary,
     marginBottom: 8,
   },
-  categorySection: {
-    marginBottom: 24,
-    backgroundColor: Colors.background.paper,
-    borderRadius: 16,
-    padding: 16,
-    paddingBottom: 8, // Réduit pour éviter trop d'espace
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 5,
-    elevation: 2,
-    overflow: 'visible', // Pour éviter les coupures
+  categoriesContainer: {
+    marginTop: 10,
   },
-  categoryTitle: {
+  categoryBlock: {
+    marginBottom: 25,
+  },
+  categoryHeader: {
     fontFamily: 'Poppins-SemiBold',
-    fontSize: width < 400 ? 18 : 20,
-    color: Colors.text.primary,
-    marginBottom: 16,
-    paddingHorizontal: 4,
-  },
-  packagesContainer: {
-    flexDirection: 'column', // Changé en colonne pour mieux contrôler les lignes
-    justifyContent: 'flex-start',
-    alignItems: 'stretch',
-  },
-  packageRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    fontSize: 18,
+    color: Colors.primary.main,
     marginBottom: 12,
-    width: '100%',
+    paddingLeft: 10,
+    borderLeftWidth: 4,
+    borderLeftColor: Colors.primary.main,
   },
-  packageWrapper: {
-    width: '48%', // Deux cartes par ligne
-    height: 'auto', // Hauteur dynamique
+  packagesList: {
+    backgroundColor: Colors.background.paper,
+    borderRadius: 12,
+    padding: 15,
+    elevation: 2,
+  },
+  packageItem: {
+    marginBottom: 15,
   },
   emptyState: {
     alignItems: 'center',
@@ -385,7 +361,7 @@ const styles = StyleSheet.create({
     padding: 24,
     backgroundColor: Colors.background.paper,
     borderRadius: 16,
-    marginTop: 12,
+    marginTop: 20,
   },
   emptyStateText: {
     fontFamily: 'Poppins-Regular',
@@ -396,7 +372,7 @@ const styles = StyleSheet.create({
   resetButton: {
     backgroundColor: Colors.primary.main,
     paddingVertical: 12,
-    paddingHorizontal: 20,
+    paddingHorizontal: 24,
     borderRadius: 8,
   },
   resetButtonText: {

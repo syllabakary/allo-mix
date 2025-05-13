@@ -514,10 +514,10 @@ const styles = StyleSheet.create({
     marginBottom: Layout.spacing.md,
   },
   userIconContainer: {
-    width: 48,
-    height: 48,
+    width: 38,
+    height: 38,
     borderRadius: 24,
-    backgroundColor: Colors.primary.light + '40',
+    backgroundColor: Colors.primary.contrastText + '40',
     justifyContent: 'center',
     alignItems: 'center',
   },
