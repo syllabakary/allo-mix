@@ -9,6 +9,8 @@ import QuickAction from '@/components/dashboard/QuickAction';
 import Colors from '@/constants/Colors';
 import Layout from '@/constants/Layout';
 import FontSizes from '@/constants/FontSizes';
+import { ArrowRightLeft } from 'lucide-react-native';
+
 
 const { width } = Dimensions.get('window');
 
@@ -54,57 +56,46 @@ const UserNumberCard = ({ phoneNumber, onPress }) => {
 
   return (
     <TouchableOpacity 
-      style={styles.userCardContainer} 
-      activeOpacity={0.9}
-      onPress={onPress}
-    >
-      <LinearGradient
-        colors={[Colors.primary.dark, Colors.primary.main]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.userCard}
-      >
-        {/* Éléments décoratifs animés */}
-        <Animated.View 
-          style={[
-            styles.userDecorCircle,
-            { 
-              transform: [{ rotate: rotateInterpolate }],
-              backgroundColor: Colors.primary.light + '40'
-            }
-          ]} 
-        />
-        
-        <View style={styles.userHeader}>
-          <Animated.View 
-            style={[
-              styles.userIconContainer,
-              { transform: [{ scale: pulseAnim }] }
-            ]}
-          >
-            <User color={Colors.common.white} size={24} />
-          </Animated.View>
-          
-          <QuickAction 
-            icon={<ArrowUpDown color={Colors.common.white} size={24} />}
-            title="Transfert"
-            color={Colors.secondary.main}
-            onPress={() => router.push('/(modals)/transfer')}
-            style={styles.transferButton}
-          />
-        </View>
-        
-        <Text style={styles.userLabel}>Votre numéro</Text>
-        <Text style={styles.userPhoneNumber}>{phoneNumber}</Text>
-        
-        <View style={styles.userFooter}>
-          <View style={styles.userFooterIcon}>
-            <ChevronRight color={Colors.common.white} size={14} />
-          </View>
-          <Text style={styles.userFooterText}>Détails du compte</Text>
-        </View>
-      </LinearGradient>
-    </TouchableOpacity>
+  style={styles.userCardContainer}
+  activeOpacity={0.9}
+ onPress={() => router.push('/(modals)/transfer')}
+>
+  <LinearGradient
+    colors={['#1a1a1a', '#2c2c2e']}
+    start={{ x: 0, y: 0 }}
+    end={{ x: 1, y: 1 }}
+    style={[styles.userCard, { padding: 16, height: 120, borderRadius: 14 }]}
+  >
+    {/* Transfert Header */}
+    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+      {/* Opérateur source */}
+      <View style={{ alignItems: 'center' }}>
+        <Image source={require('../../assets/images/mtn.png')} style={{ width: 40, height: 40, borderRadius: 20 }} />
+        <Text style={{ color: '#fff', fontSize: 12, marginTop: 4 }}>MTN</Text>
+      </View>
+
+      {/* Icône de transfert */}
+      <View style={{ alignItems: 'center' }}>
+        <ArrowRightLeft size={28} color="#fff" />
+        <Text style={{ color: '#aaa', fontSize: 12, marginTop: 2 }}>Vers</Text>
+      </View>
+
+      {/* Opérateur cible */}
+      <View style={{ alignItems: 'center' }}>
+        <Image source={require('../../assets/images/moov.png')} style={{ width: 40, height: 40, borderRadius: 20 }} />
+        <Text style={{ color: '#fff', fontSize: 12, marginTop: 4 }}>Moov</Text>
+      </View>
+    </View>
+    {/* Footer ou CTA */}
+    <View style={{ marginTop: 12, alignItems: 'center' }}>
+      <Text style={{ color: Colors.secondary.main, fontWeight: '600', fontSize: 13 }}>
+        Transférer maintenant
+      </Text>
+    </View>
+  </LinearGradient>
+</TouchableOpacity>
+
+
   );
 };
 
@@ -424,6 +415,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: Layout.spacing.lg,
     paddingBottom: Layout.spacing.xxl,
   },
+  //carte inter fransfer
+  userCardContainer: {
+  marginHorizontal: 16,
+  marginVertical: 10,
+},
+userCard: {
+  borderRadius: 14,
+  justifyContent: 'center',
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.2,
+  shadowRadius: 5,
+  elevation: 3,
+},
+
   
   // Styles Tabs
   enhancedTabsContainer: {

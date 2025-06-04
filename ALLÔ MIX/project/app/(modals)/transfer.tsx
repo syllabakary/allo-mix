@@ -18,20 +18,26 @@ import Colors from '@/constants/Colors';
 import FontSizes from '@/constants/FontSizes';
 import Layout from '@/constants/Layout';
 
-// const OPERATORS = [
-//   { id: 'wave', name: 'Wave', logo: require('') },
-//   { id: 'orange', name: 'Orange Money', logo: require('') },
-//   { id: 'moov', name: 'Moov Money', logo: require('') },
-//   { id: 'mtn', name: 'MTN Mobile Money', logo: require('') },
-//   { id: 'crypto', name: 'Crypto Wallet', logo: require('') },
-// ];
+const OPERATORS = [
+   { id: 'wave', name: 'Wave', logo: require('../../assets/images/wave.jpeg') },
+  { id: 'orange', name: 'Orange Money', logo: require('../../assets/images/orange.png') },
+  { id: 'moov', name: 'Moov Money', logo: require('../../assets/images/moov.png') },
+  { id: 'mtn', name: 'MTN Mobile Money', logo: require('../../assets/images/mtn.png') },
+  { id: 'crypto', name: 'Crypto Wallet', logo: require('../../assets/images/crypto.jpeg') },
+];
+
+interface Operator {
+  id: string;
+  name: string;
+  logo: any;
+}
 
 export default function MoneyTransferScreen() {
   const [amount, setAmount] = useState('');
   const [sender, setSender] = useState('');
   const [receiver, setReceiver] = useState('');
-  const [selectedOperatorFrom, setSelectedOperatorFrom] = useState(null);
-  const [selectedOperatorTo, setSelectedOperatorTo] = useState(null);
+  const [selectedOperatorFrom, setSelectedOperatorFrom] = useState<Operator | null>(null);
+  const [selectedOperatorTo, setSelectedOperatorTo] = useState<Operator | null>(null);
   const [showOperatorsFrom, setShowOperatorsFrom] = useState(false);
   const [showOperatorsTo, setShowOperatorsTo] = useState(false);
 
@@ -41,16 +47,15 @@ export default function MoneyTransferScreen() {
       return;
     }
 
-    router.push({
-      pathname: '/transfer-confirmation',
-      params: {
-        amount,
-        sender,
-        receiver,
-        operatorFrom: selectedOperatorFrom.id,
-        operatorTo: selectedOperatorTo.id
-      }
-    });
+    const queryParams = new URLSearchParams({
+      amount,
+      sender,
+      receiver,
+      operatorFrom: selectedOperatorFrom.id,
+      operatorTo: selectedOperatorTo.id,
+    }).toString();
+
+    router.push(`/transfer-confirmation?${queryParams}`);
   };
 
   return (

@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { Chrome as Home, Package, Clock, User } from 'lucide-react-native';
+import { Ionicons } from '@expo/vector-icons';
 import Colors from '@/constants/Colors';
 
 export default function TabLayout() {
@@ -9,9 +9,12 @@ export default function TabLayout() {
         tabBarActiveTintColor: Colors.primary.main,
         tabBarInactiveTintColor: Colors.grey[500],
         tabBarStyle: {
-          height: 60,
-          paddingBottom: 8,
-          paddingTop: 8,
+          height: 100,
+          paddingBottom: 10,
+          paddingTop: 10,
+          backgroundColor: '#fff',
+          borderTopWidth: 0.5,
+          borderTopColor: '#ddd',
         },
         tabBarLabelStyle: {
           fontFamily: 'Poppins-Medium',
@@ -23,36 +26,36 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
+          title: 'Accueil',
           tabBarIcon: ({ color, size }) => (
-            <Home color={color} size={size} />
+            <Ionicons name="grid-outline" size={size} color={color} />
           ),
         }}
       />
       <Tabs.Screen
         name="packages"
         options={{
-          title: 'Packages',
+          title: 'Forfaits',
           tabBarIcon: ({ color, size }) => (
-            <Package color={color} size={size} />
+            <Ionicons name="cube-outline" size={size} color={color} />
           ),
         }}
       />
       <Tabs.Screen
         name="transactions"
         options={{
-          title: 'History',
+          title: 'Historique',
           tabBarIcon: ({ color, size }) => (
-            <Clock color={color} size={size} />
+            <Ionicons name="time-outline" size={size} color={color} />
           ),
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Profile',
+          title: 'Profil',
           tabBarIcon: ({ color, size }) => (
-            <User color={color} size={size} />
+            <Ionicons name="person-circle-outline" size={size} color={color} />
           ),
         }}
       />

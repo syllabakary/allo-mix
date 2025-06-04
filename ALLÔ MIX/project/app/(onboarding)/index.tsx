@@ -229,7 +229,7 @@ const AnimatedCreditCard = ({ isActive }) => {
         <FontAwesome5 name="credit-card" size={64} color={Colors.common.white} />
       </Animated.View>
       <Animated.View style={paymentSymbolStyle}>
-        <Text style={{ fontSize: 24 }}>💸</Text>
+        <Text style={{ fontSize: 24 }}></Text>
       </Animated.View>
     </View>
   );
