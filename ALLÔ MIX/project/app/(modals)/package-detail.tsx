@@ -15,7 +15,7 @@ import {
   Dimensions
 } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-import { X, Check, TriangleAlert as AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react-native';
+import { X, Check, TriangleAlert as AlertTriangle, ChevronDown, ChevronUp, Wifi, Phone, Clock, Zap } from 'lucide-react-native';
 import Header from '@/components/common/Header';
 import Colors from '@/constants/Colors';
 import Layout from '@/constants/Layout';
@@ -23,124 +23,574 @@ import FontSizes from '@/constants/FontSizes';
 
 const { width } = Dimensions.get('window');
 
-// Données des forfaits (identique à votre version originale)
+// Même interface Package que dans votre fichier principal
+interface Package {
+  id: string;
+  name: string;
+  operator: string;
+  data: string;
+  validity: string;
+  price: number;
+  description: string;
+  popular: boolean;
+  type: string;
+  category: 'internet' | 'appels' | 'mixte';
+  bonus?: string;
+  color: string;
+}
+
+// Même tableau PACKAGES que dans votre fichier principal
+
+// Données complètes des forfaits avec détails étendus
 const PACKAGES = [
+  // ORANGE CI - Forfaits réels
   {
     id: '1',
-    name: 'Forfait Quotidien',
+    name: 'Orange Internet 24h',
     operator: 'Orange',
     operatorLogo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Orange_logo.svg/200px-Orange_logo.svg.png',
-    data: '1 Go',
-    calls: '10 min',
-    sms: '10 SMS',
-    validity: '1 jour',
-    price: 1200,
-    description: 'Internet rapide pour vos besoins quotidiens',
+    data: '1.5Go',
+    calls: '0 min',
+    sms: '0 SMS',
+    validity: '24h',
+    price: 500,
+    description: '1,5Go + 100Mo offerts entre 00h-06h pour navigation rapide',
     popular: true,
+    type: 'Internet',
+    category: 'internet',
+    bonus: '100Mo nuit gratuit',
+    color: '#FF6600',
     features: [
-      'Navigation haute vitesse',
-      'Accès aux réseaux sociaux',
-      'Appels inclus limités',
-      'SMS inclus limités'
+      'Navigation haute vitesse 4G',
+      'Bonus 100Mo nuit (00h-06h)',
+      'Accès réseaux sociaux',
+      'Compatible partage de connexion',
+      'Valable 24h après activation'
     ],
     restrictions: [
-      'Pas de streaming vidéo',
-      'Non partageable'
+      'Pas d\'appels inclus',
+      'Pas de SMS inclus',
+      'Usage limité à 24h',
+      'Bonus nuit non cumulable'
     ]
   },
   {
     id: '2',
-    name: 'Réseaux Sociaux Hebdo',
-    operator: 'MTN',
-    operatorLogo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/MTN_Logo.svg/200px-MTN_Logo.svg.png',
-    data: '3 Go',
-    calls: '20 min',
-    sms: '20 SMS',
+    name: 'Orange Internet 7J',
+    operator: 'Orange',
+    operatorLogo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Orange_logo.svg/200px-Orange_logo.svg.png',
+    data: '3Go',
+    calls: '0 min',
+    sms: '0 SMS',
     validity: '7 jours',
-    price: 3000,
-    description: 'Accès illimité aux réseaux sociaux',
+    price: 1500,
+    description: '3Go Internet valable 7 jours pour vos besoins hebdomadaires',
     popular: false,
+    type: 'Internet',
+    category: 'internet',
+    color: '#FF6600',
     features: [
-      'Réseaux sociaux illimités',
-      'Navigation haute vitesse',
-      'Appels inclus limités',
-      'SMS inclus limités'
+      'Navigation haute vitesse 4G',
+      'Accès complet internet',
+      'Compatible tous appareils',
+      'Partage de connexion autorisé',
+      'Validité 7 jours'
     ],
     restrictions: [
-      'Pas de streaming vidéo',
-      'Non partageable'
+      'Pas d\'appels inclus',
+      'Pas de SMS inclus',
+      'Non renouvelable automatiquement',
+      'Usage strictement internet'
     ]
   },
   {
     id: '3',
-    name: 'Forfait Mensuel Max',
+    name: 'Orange Internet 30J',
     operator: 'Orange',
     operatorLogo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Orange_logo.svg/200px-Orange_logo.svg.png',
-    data: '20 Go',
-    calls: '100 min',
-    sms: '100 SMS',
+    data: '10Go',
+    calls: '0 min',
+    sms: '0 SMS',
     validity: '30 jours',
-    price: 10000,
-    description: 'Notre meilleure offre mensuelle',
+    price: 5000,
+    description: '10Go Internet + Facebook gratuit pour un mois complet',
     popular: true,
+    type: 'Internet',
+    category: 'internet',
+    bonus: 'Facebook gratuit',
+    color: '#FF6600',
     features: [
-      'Navigation haute vitesse',
+      'Navigation haute vitesse 4G',
+      'Facebook illimité gratuit',
       'Streaming vidéo autorisé',
-      'Minutes d\'appel généreuses',
-      'SMS généreux',
-      'Partageable avec 1 appareil'
+      'Partage connexion multi-appareils',
+      'Validité 30 jours complets'
     ],
     restrictions: [
-      'Politique d\'usage équitable applicable'
+      'Pas d\'appels inclus',
+      'Pas de SMS inclus',
+      'Facebook gratuit hors data',
+      'Non cumulable avec autres offres'
     ]
   },
   {
     id: '4',
-    name: 'Appels Illimités',
-    operator: 'Moov',
-    operatorLogo: 'https://seeklogo.com/images/M/moov-africa-logo-459FC30F68-seeklogo.com.png',
-    data: '500 Mo',
-    calls: 'Illimités',
-    sms: '50 SMS',
-    validity: '30 jours',
-    price: 6000,
-    description: 'Appels illimités vers tous les réseaux',
+    name: 'Orange Appels 7J',
+    operator: 'Orange',
+    operatorLogo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Orange_logo.svg/200px-Orange_logo.svg.png',
+    data: '0 Mo',
+    calls: '200min',
+    sms: '0 SMS',
+    validity: '7 jours',
+    price: 1000,
+    description: 'Appels illimités Orange + 50min autres réseaux pour une semaine',
     popular: false,
+    type: 'Appels',
+    category: 'appels',
+    color: '#FF6600',
     features: [
-      'Appels illimités tous réseaux',
-      'Data basique incluse',
-      'SMS limités'
+      'Appels illimités vers Orange',
+      '50 minutes vers autres réseaux',
+      'Qualité HD pour tous appels',
+      'Numérotation internationale',
+      'Validité 7 jours'
     ],
     restrictions: [
-      'Politique d\'usage équitable',
-      'Non partageable'
+      'Pas de data internet incluse',
+      'Pas de SMS inclus',
+      'Limité 50min hors Orange',
+      'International non inclus'
     ]
   },
   {
     id: '5',
-    name: 'Partage Familial',
-    operator: 'MTN',
-    operatorLogo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/MTN_Logo.svg/200px-MTN_Logo.svg.png',
-    data: '50 Go',
-    calls: '300 min',
-    sms: '300 SMS',
-    validity: '30 jours',
-    price: 18000,
-    description: 'Partagez avec jusqu\'à 5 membres',
+    name: 'Orange Mixte',
+    operator: 'Orange',
+    operatorLogo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Orange_logo.svg/200px-Orange_logo.svg.png',
+    data: '2Go',
+    calls: '100min',
+    sms: 'Illimités',
+    validity: '7 jours',
+    price: 2000,
+    description: '2Go Internet + 100min tous réseaux + SMS illimités',
     popular: true,
+    type: 'Mixte',
+    category: 'mixte',
+    bonus: 'SMS illimités',
+    color: '#FF6600',
     features: [
-      'Navigation haute vitesse',
-      'Streaming vidéo autorisé',
-      'Minutes d\'appel généreuses',
-      'SMS généreux',
-      'Partageable jusqu\'à 5 appareils'
+      'Navigation internet 4G - 2Go',
+      '100 minutes tous réseaux',
+      'SMS illimités nationaux',
+      'Partage de connexion',
+      'Forfait complet 7 jours'
     ],
     restrictions: [
-      'Politique d\'usage équitable applicable'
+      'SMS international non inclus',
+      'Appels limités à 100min',
+      'Validité 7 jours uniquement',
+      'Non renouvelable automatique'
     ]
   },
-  // ... (vos données PACKAGES existantes)
+
+  // MTN CI - Forfaits réels
+  {
+    id: '6',
+    name: 'MTN Internet 24h',
+    operator: 'MTN',
+    operatorLogo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/MTN_Logo.svg/200px-MTN_Logo.svg.png',
+    data: '1Go',
+    calls: '0 min',
+    sms: '0 SMS',
+    validity: '24h',
+    price: 500,
+    description: '1Go Internet + WhatsApp gratuit 24h pour rester connecté',
+    popular: false,
+    type: 'Internet',
+    category: 'internet',
+    bonus: 'WhatsApp gratuit',
+    color: '#FFCC00',
+    features: [
+      'Navigation internet 4G - 1Go',
+      'WhatsApp illimité gratuit',
+      'Vitesse optimisée',
+      'Compatible tous appareils',
+      'Activation instantanée'
+    ],
+    restrictions: [
+      'Pas d\'appels inclus',
+      'Pas de SMS inclus',
+      'Validité 24h seulement',
+      'WhatsApp seul gratuit'
+    ]
+  },
+  {
+    id: '7',
+    name: 'MTN Internet 7J',
+    operator: 'MTN',
+    operatorLogo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/MTN_Logo.svg/200px-MTN_Logo.svg.png',
+    data: '3Go',
+    calls: '0 min',
+    sms: '0 SMS',
+    validity: '7 jours',
+    price: 1500,
+    description: '3Go Internet + réseaux sociaux gratuits pour une semaine',
+    popular: true,
+    type: 'Internet',
+    category: 'internet',
+    bonus: 'Réseaux sociaux gratuits',
+    color: '#FFCC00',
+    features: [
+      'Navigation internet 4G - 3Go',
+      'Facebook, WhatsApp, Instagram gratuits',
+      'Streaming musique autorisé',
+      'Partage connexion permis',
+      'Validité complète 7 jours'
+    ],
+    restrictions: [
+      'Pas d\'appels inclus',
+      'Pas de SMS inclus',
+      'Réseaux sociaux hors quota',
+      'YouTube non inclus gratuitement'
+    ]
+  },
+  {
+    id: '8',
+    name: 'MTN Internet 30J',
+    operator: 'MTN',
+    operatorLogo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/MTN_Logo.svg/200px-MTN_Logo.svg.png',
+    data: '12Go',
+    calls: '0 min',
+    sms: '0 SMS',
+    validity: '30 jours',
+    price: 6000,
+    description: '12Go Internet + YouTube gratuit le weekend',
+    popular: false,
+    type: 'Internet',
+    category: 'internet',
+    bonus: 'YouTube weekend gratuit',
+    color: '#FFCC00',
+    features: [
+      'Navigation internet 4G - 12Go',
+      'YouTube gratuit weekends',
+      'Streaming HD autorisé',
+      'Multi-appareils compatible',
+      'Validité 30 jours complets'
+    ],
+    restrictions: [
+      'Pas d\'appels inclus',
+      'Pas de SMS inclus',
+      'YouTube gratuit weekend uniquement',
+      'Streaming limité au quota'
+    ]
+  },
+  {
+    id: '9',
+    name: 'MTN Appels Illimités',
+    operator: 'MTN',
+    operatorLogo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/MTN_Logo.svg/200px-MTN_Logo.svg.png',
+    data: '0 Mo',
+    calls: 'Illimité MTN + 30min',
+    sms: '0 SMS',
+    validity: '7 jours',
+    price: 1200,
+    description: 'Appels illimités MTN + 30min autres réseaux',
+    popular: true,
+    type: 'Appels',
+    category: 'appels',
+    color: '#FFCC00',
+    features: [
+      'Appels illimités vers MTN',
+      '30 minutes autres réseaux',
+      'Qualité cristalline HD',
+      'Disponible 24h/24',
+      'Activation immédiate'
+    ],
+    restrictions: [
+      'Pas de data internet',
+      'Pas de SMS inclus',
+      '30min seulement hors MTN',
+      'Appels internationaux exclus'
+    ]
+  },
+  {
+    id: '10',
+    name: 'MTN Combo',
+    operator: 'MTN',
+    operatorLogo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/MTN_Logo.svg/200px-MTN_Logo.svg.png',
+    data: '5Go',
+    calls: '150min',
+    sms: '100 SMS',
+    validity: '30 jours',
+    price: 4500,
+    description: '5Go Internet + 150min tous réseaux + 100 SMS',
+    popular: true,
+    type: 'Mixte',
+    category: 'mixte',
+    bonus: '100 SMS inclus',
+    color: '#FFCC00',
+    features: [
+      'Internet 4G haute vitesse - 5Go',
+      '150 minutes tous réseaux',
+      '100 SMS nationaux inclus',
+      'Forfait équilibré complet',
+      'Validité 30 jours'
+    ],
+    restrictions: [
+      'SMS international non inclus',
+      'Appels limités à 150min',
+      'Pas de bonus réseaux sociaux',
+      'Non renouvelable automatique'
+    ]
+  },
+
+  // MOOV CI - Forfaits réels
+  {
+    id: '11',
+    name: 'Moov Internet Nuit',
+    operator: 'Moov',
+    operatorLogo: 'https://seeklogo.com/images/M/moov-africa-logo-459FC30F68-seeklogo.com.png',
+    data: '3Go',
+    calls: '0 min',
+    sms: '0 SMS',
+    validity: 'Nuit (00h-06h)',
+    price: 300,
+    description: '3Go Internet valable de 00h à 06h uniquement - idéal téléchargements',
+    popular: false,
+    type: 'Internet',
+    category: 'internet',
+    color: '#0066CC',
+    features: [
+      'Navigation internet 4G - 3Go',
+      'Tarif économique nocturne',
+      'Idéal pour téléchargements',
+      'Vitesse maximale garantie',
+      'Activation flexible'
+    ],
+    restrictions: [
+      'Usage 00h-06h uniquement',
+      'Pas d\'appels inclus',
+      'Pas de SMS inclus',
+      'Non utilisable en journée'
+    ]
+  },
+  {
+    id: '12',
+    name: 'Moov Internet 7J',
+    operator: 'Moov',
+    operatorLogo: 'https://seeklogo.com/images/M/moov-africa-logo-459FC30F68-seeklogo.com.png',
+    data: '2.5Go',
+    calls: '0 min',
+    sms: '0 SMS',
+    validity: '7 jours',
+    price: 1200,
+    description: '2,5Go Internet + Facebook et WhatsApp gratuits',
+    popular: true,
+    type: 'Internet',
+    category: 'internet',
+    bonus: 'Facebook + WhatsApp gratuits',
+    color: '#0066CC',
+    features: [
+      'Navigation internet - 2,5Go',
+      'Facebook illimité gratuit',
+      'WhatsApp illimité gratuit',
+      'Compatible partage connexion',
+      'Validité 7 jours'
+    ],
+    restrictions: [
+      'Pas d\'appels inclus',
+      'Pas de SMS inclus',
+      'Autres réseaux sociaux payants',
+      'Instagram non inclus'
+    ]
+  },
+  {
+    id: '13',
+    name: 'Moov Internet 30J',
+    operator: 'Moov',
+    operatorLogo: 'https://seeklogo.com/images/M/moov-africa-logo-459FC30F68-seeklogo.com.png',
+    data: '8Go',
+    calls: '0 min',
+    sms: '0 SMS',
+    validity: '30 jours',
+    price: 4000,
+    description: '8Go Internet + applications sociales gratuites',
+    popular: false,
+    type: 'Internet',
+    category: 'internet',
+    bonus: 'Apps sociales gratuites',
+    color: '#0066CC',
+    features: [
+      'Navigation internet 4G - 8Go',
+      'Applications sociales illimitées',
+      'Streaming autorisé',
+      'Multi-appareils support',
+      'Validité mensuelle complète'
+    ],
+    restrictions: [
+      'Pas d\'appels inclus',
+      'Pas de SMS inclus',
+      'Apps définies par Moov',
+      'YouTube non illimité'
+    ]
+  },
+  {
+    id: '14',
+    name: 'Moov Appels Famille',
+    operator: 'Moov',
+    operatorLogo: 'https://seeklogo.com/images/M/moov-africa-logo-459FC30F68-seeklogo.com.png',
+    data: '0 Mo',
+    calls: 'Illimité Moov + 3 favoris',
+    sms: '0 SMS',
+    validity: '7 jours',
+    price: 1500,
+    description: 'Appels illimités Moov + 3 numéros favoris autres réseaux',
+    popular: true,
+    type: 'Appels',
+    category: 'appels',
+    bonus: '3 numéros favoris',
+    color: '#0066CC',
+    features: [
+      'Appels illimités vers Moov',
+      '3 numéros favoris autres réseaux',
+      'Gestion favoris flexible',
+      'Qualité HD garantie',
+      'Parfait usage familial'
+    ],
+    restrictions: [
+      'Pas de data internet',
+      'Pas de SMS inclus',
+      '3 numéros favoris maximum',
+      'Autres numéros payants'
+    ]
+  },
+  {
+    id: '15',
+    name: 'Moov Tout-en-Un',
+    operator: 'Moov',
+    operatorLogo: 'https://seeklogo.com/images/M/moov-africa-logo-459FC30F68-seeklogo.com.png',
+    data: '4Go',
+    calls: '120min',
+    sms: 'Illimités',
+    validity: '30 jours',
+    price: 3500,
+    description: '4Go Internet + 120min tous réseaux + SMS illimités',
+    popular: false,
+    type: 'Mixte',
+    category: 'mixte',
+    bonus: 'SMS illimités',
+    color: '#0066CC',
+    features: [
+      'Internet 4G - 4Go inclus',
+      '120 minutes tous réseaux',
+      'SMS illimités nationaux',
+      'Forfait équilibré mensuel',
+      'Rapport qualité-prix optimal'
+    ],
+    restrictions: [
+      'SMS international exclus',
+      'Appels limités 120min',
+      'Pas de bonus social',
+      'Non cumulable'
+    ]
+  },
+
+  // Forfaits spéciaux weekend et promotions
+  {
+    id: '16',
+    name: 'Weekend Orange',
+    operator: 'Orange',
+    operatorLogo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Orange_logo.svg/200px-Orange_logo.svg.png',
+    data: '5Go',
+    calls: '0 min',
+    sms: '0 SMS',
+    validity: 'Weekend (48h)',
+    price: 1000,
+    description: 'Forfait spécial weekend - 5Go pour 48h de navigation intensive',
+    popular: true,
+    type: 'Internet',
+    category: 'internet',
+    bonus: 'Spécial weekend',
+    color: '#FF6600',
+    features: [
+      'Navigation ultra-rapide 5Go',
+      'Validité weekend complet',
+      'Streaming HD autorisé',
+      'Partage connexion illimité',
+      'Activation flexible'
+    ],
+    restrictions: [
+      'Valable weekend uniquement',
+      'Pas d\'appels inclus',
+      'Pas de SMS inclus',
+      'Expire dimanche 23h59'
+    ]
+  },
+  {
+    id: '17',
+    name: 'MTN Étudiant',
+    operator: 'MTN',
+    operatorLogo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/MTN_Logo.svg/200px-MTN_Logo.svg.png',
+    data: '15Go',
+    calls: '0 min',
+    sms: '0 SMS',
+    validity: '30 jours',
+    price: 5000,
+    description: 'Forfait étudiant - 15Go + plateformes éducatives gratuites',
+    popular: true,
+    type: 'Internet',
+    category: 'internet',
+    bonus: 'Plateformes éducatives gratuites',
+    color: '#FFCC00',
+    features: [
+      'Internet haute vitesse - 15Go',
+      'Plateformes éducatives illimitées',
+      'Recherche académique gratuite',
+      'Streaming éducatif inclus',
+      'Tarif préférentiel étudiant'
+    ],
+    restrictions: [
+      'Justificatif étudiant requis',
+      'Pas d\'appels inclus',
+      'Pas de SMS inclus',
+      'Plateformes définies par MTN'
+    ]
+  },
+  {
+    id: '18',
+    name: 'Moov Business',
+    operator: 'Moov',
+    operatorLogo: 'https://seeklogo.com/images/M/moov-africa-logo-459FC30F68-seeklogo.com.png',
+    data: '20Go',
+    calls: '300min',
+    sms: 'Illimités',
+    validity: '30 jours',
+    price: 8000,
+    description: 'Forfait professionnel - 20Go + 300min + email professionnel',
+    popular: false,
+    type: 'Mixte',
+    category: 'mixte',
+    bonus: 'Email professionnel',
+    color: '#0066CC',
+    features: [
+      'Internet ultra-rapide - 20Go',
+      '300 minutes tous réseaux',
+      'SMS illimités professionnels',
+      'Email professionnel inclus',
+      'Support client prioritaire'
+    ],
+    restrictions: [
+      'Forfait entreprise uniquement',
+      'Facture mensuelle requise',
+      'SMS international exclus',
+      'Conditions commerciales spéciales'
+    ]
+  }
 ];
+
+const formatXOF = (amount) => {
+  return new Intl.NumberFormat('fr-FR').format(amount) + ' FCFA';
+};
 
 export default function PackageDetailScreen() {
   const { id } = useLocalSearchParams();
@@ -168,10 +618,6 @@ export default function PackageDetailScreen() {
       keyboardDidHideListener.remove();
     };
   }, []);
-
-  const formatXOF = (amount) => {
-    return new Intl.NumberFormat('fr-FR').format(amount) + ' XOF';
-  };
 
   const toggleFeatures = () => setShowFeatures(!showFeatures);
   const toggleRestrictions = () => setShowRestrictions(!showRestrictions);
@@ -205,6 +651,19 @@ export default function PackageDetailScreen() {
     });
   };
 
+  const getCategoryIcon = (category) => {
+    switch (category) {
+      case 'internet':
+        return <Wifi size={20} color={Colors.primary.main} />;
+      case 'appels':
+        return <Phone size={20} color={Colors.primary.main} />;
+      case 'mixte':
+        return <Zap size={20} color={Colors.primary.main} />;
+      default:
+        return <Clock size={20} color={Colors.primary.main} />;
+    }
+  };
+
   if (!packageData) {
     return (
       <View style={styles.container}>
@@ -223,180 +682,219 @@ export default function PackageDetailScreen() {
     );
   }
 
-  return (
-    <KeyboardAvoidingView
+ return (
+    <KeyboardAvoidingView 
+      style={styles.container} 
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}
     >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View style={styles.container}>
-          <Header title="Détails du forfait" showBack />
-          
-          <ScrollView
-            style={styles.scrollView}
-            contentContainerStyle={[
-              styles.scrollViewContent,
-              keyboardVisible && { paddingBottom: 200 }
-            ]}
-            keyboardShouldPersistTaps="handled"
-          >
-            {/* En-tête du forfait */}
-            <View style={styles.packageHeader}>
-              <View style={styles.operatorLogoContainer}>
-                <Image 
-                  source={{ uri: packageData.operatorLogo }} 
-                  style={styles.operatorLogo}
-                  resizeMode="contain"
-                />
+      <Header title="Détails du forfait" showBack />
+      
+      <ScrollView 
+        style={styles.scrollView}
+        contentContainerStyle={[
+          styles.scrollContent,
+          keyboardVisible && styles.scrollContentKeyboard
+        ]}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* En-tête du forfait */}
+        <View style={[styles.packageHeader, { backgroundColor: `${packageData.color}15` }]}>
+          <View style={styles.headerTop}>
+            <View style={styles.operatorSection}>
+              <View style={[styles.operatorBadge, { backgroundColor: packageData.color }]}>
+                <Text style={styles.operatorText}>{packageData.operator}</Text>
               </View>
-              
-              <View style={styles.packageTitleContainer}>
-                <Text style={styles.packageName}>{packageData.name}</Text>
-                <Text style={styles.operatorName}>{packageData.operator}</Text>
-              </View>
-              
               {packageData.popular && (
                 <View style={styles.popularBadge}>
-                  <Text style={styles.popularText}>Populaire</Text>
+                  <Text style={styles.popularText}>🔥 Populaire</Text>
                 </View>
               )}
             </View>
             
-            {/* Détails du forfait */}
-            <View style={styles.detailsCard}>
-              <Text style={styles.descriptionText}>{packageData.description}</Text>
-              
-              <View style={styles.featureGrid}>
-                <View style={styles.featureItem}>
-                  <Text style={styles.featureValue}>{packageData.data}</Text>
-                  <Text style={styles.featureLabel}>Internet</Text>
-                </View>
-                
-                <View style={styles.featureItem}>
-                  <Text style={styles.featureValue}>{packageData.calls}</Text>
-                  <Text style={styles.featureLabel}>Appels</Text>
-                </View>
-                
-                <View style={styles.featureItem}>
-                  <Text style={styles.featureValue}>{packageData.sms}</Text>
-                  <Text style={styles.featureLabel}>SMS</Text>
-                </View>
-                
-                <View style={styles.featureItem}>
-                  <Text style={styles.featureValue}>{packageData.validity}</Text>
-                  <Text style={styles.featureLabel}>Validité</Text>
-                </View>
-              </View>
-              
-              <TouchableOpacity 
-                style={styles.viewCardButton}
-                onPress={viewCard}
-              >
-                <Text style={styles.viewCardText}>Voir la carte</Text>
-              </TouchableOpacity>
-              
-              {/* Caractéristiques */}
-              <TouchableOpacity 
-                style={styles.accordionHeader}
-                onPress={toggleFeatures}
-              >
-                <Text style={styles.accordionTitle}>Caractéristiques</Text>
-                {showFeatures ? <ChevronUp color={Colors.text.primary} size={20} /> : <ChevronDown color={Colors.text.primary} size={20} />}
-              </TouchableOpacity>
-              
-              {showFeatures && (
-                <View style={styles.featuresList}>
-                  {packageData.features.map((feature, index) => (
-                    <View key={index} style={styles.featureRow}>
-                      <Check color={Colors.success.main} size={16} />
-                      <Text style={styles.featureText}>{feature}</Text>
-                    </View>
-                  ))}
-                </View>
-              )}
-              
-              {/* Restrictions */}
-              <TouchableOpacity 
-                style={styles.accordionHeader}
-                onPress={toggleRestrictions}
-              >
-                <Text style={styles.accordionTitle}>Restrictions</Text>
-                {showRestrictions ? <ChevronUp color={Colors.text.primary} size={20} /> : <ChevronDown color={Colors.text.primary} size={20} />}
-              </TouchableOpacity>
-              
-              {showRestrictions && (
-                <View style={styles.featuresList}>
-                  {packageData.restrictions.map((restriction, index) => (
-                    <View key={index} style={styles.featureRow}>
-                      <X color={Colors.error.main} size={16} />
-                      <Text style={styles.restrictionText}>{restriction}</Text>
-                    </View>
-                  ))}
-                </View>
-              )}
-            </View>
-            
-            {/* Choix du bénéficiaire */}
-            <View style={styles.recipientCard}>
-              <Text style={styles.recipientTitle}>Choisir le bénéficiaire</Text>
-              <View style={styles.recipientOptions}>
-                <TouchableOpacity 
-                  style={[styles.recipientOption, recipient === 'self' && styles.activeRecipientOption]}
-                  onPress={() => setRecipient('self')}
-                >
-                  <Text style={[styles.recipientOptionText, recipient === 'self' && styles.activeRecipientOptionText]}>
-                    Pour moi-même
-                  </Text>
-                </TouchableOpacity>
-                
-                <TouchableOpacity 
-                  style={[styles.recipientOption, recipient === 'other' && styles.activeRecipientOption]}
-                  onPress={() => setRecipient('other')}
-                >
-                  <Text style={[styles.recipientOptionText, recipient === 'other' && styles.activeRecipientOptionText]}>
-                    Pour quelqu'un d'autre
-                  </Text>
-                </TouchableOpacity>
-              </View>
-              
-              {recipient === 'other' && (
-                <View style={styles.phoneInputContainer}>
-                  <Text style={styles.phoneInputLabel}>Numéro du bénéficiaire</Text>
-                  <TextInput
-                    style={styles.phoneInput}
-                    placeholder="Ex: +225 XX XX XX XX XX"
-                    placeholderTextColor={Colors.grey[500]}
-                    value={phoneNumber}
-                    onChangeText={setPhoneNumber}
-                    keyboardType="phone-pad"
-                    returnKeyType="done"
-                    onSubmitEditing={Keyboard.dismiss}
-                    blurOnSubmit={false}
-                  />
-                </View>
-              )}
-            </View>
-          </ScrollView>
+            <TouchableOpacity 
+              style={styles.cardButton}
+              onPress={viewCard}
+            >
+              <Text style={styles.cardButtonText}>📱 Voir carte</Text>
+            </TouchableOpacity>
+          </View>
           
-          {/* Barre d'achat - cachée quand le clavier est visible */}
-          {!keyboardVisible && (
-            <View style={styles.purchaseBar}>
-              <View style={styles.priceContainer}>
-                <Text style={styles.priceLabel}>Prix</Text>
-                <Text style={styles.priceValue}>{formatXOF(packageData.price)}</Text>
-              </View>
-              
-              <TouchableOpacity 
-                style={styles.purchaseButton}
-                onPress={handlePurchase}
-              >
-                <Text style={styles.purchaseButtonText}>Acheter maintenant</Text>
-              </TouchableOpacity>
+          <Text style={styles.packageName}>{packageData.name}</Text>
+          <Text style={styles.packageDescription}>{packageData.description}</Text>
+          
+          {packageData.bonus && (
+            <View style={[styles.bonusContainer, { backgroundColor: `${packageData.color}25` }]}>
+              <Text style={[styles.bonusText, { color: packageData.color }]}>
+                🎁 {packageData.bonus}
+              </Text>
             </View>
           )}
         </View>
-      </TouchableWithoutFeedback>
+
+        {/* Informations principales */}
+        <View style={styles.mainInfoContainer}>
+          <View style={styles.infoGrid}>
+            <View style={styles.infoItem}>
+              <Wifi size={20} color={packageData.color} />
+              <Text style={styles.infoLabel}>Internet</Text>
+              <Text style={[styles.infoValue, { color: packageData.color }]}>
+                {packageData.data}
+              </Text>
+            </View>
+            
+            <View style={styles.infoItem}>
+              <Phone size={20} color={packageData.color} />
+              <Text style={styles.infoLabel}>Appels</Text>
+              <Text style={[styles.infoValue, { color: packageData.color }]}>
+                {packageData.calls || '0 min'}
+              </Text>
+            </View>
+            
+            <View style={styles.infoItem}>
+              <Text style={[styles.smsIcon, { color: packageData.color }]}>💬</Text>
+              <Text style={styles.infoLabel}>SMS</Text>
+              <Text style={[styles.infoValue, { color: packageData.color }]}>
+                {packageData.sms || '0 SMS'}
+              </Text>
+            </View>
+            
+            <View style={styles.infoItem}>
+              <Clock size={20} color={packageData.color} />
+              <Text style={styles.infoLabel}>Validité</Text>
+              <Text style={[styles.infoValue, { color: packageData.color }]}>
+                {packageData.validity}
+              </Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Prix */}
+        <View style={styles.priceContainer}>
+          <Text style={styles.priceLabel}>Prix du forfait</Text>
+          <Text style={[styles.priceValue, { color: packageData.color }]}>
+            {formatXOF(packageData.price)}
+          </Text>
+        </View>
+
+        {/* Avantages */}
+        {packageData.features && packageData.features.length > 0 && (
+          <View style={styles.section}>
+            <TouchableOpacity 
+              style={styles.sectionHeader}
+              onPress={toggleFeatures}
+            >
+              <Text style={styles.sectionTitle}>✅ Avantages inclus</Text>
+              {showFeatures ? 
+                <ChevronUp color={Colors.text.secondary} size={20} /> : 
+                <ChevronDown color={Colors.text.secondary} size={20} />
+              }
+            </TouchableOpacity>
+            
+            {showFeatures && (
+              <View style={styles.sectionContent}>
+                {packageData.features.map((feature, index) => (
+                  <View key={index} style={styles.featureItem}>
+                    <Text style={styles.featureIcon}>✓</Text>
+                    <Text style={styles.featureText}>{feature}</Text>
+                  </View>
+                ))}
+              </View>
+            )}
+          </View>
+        )}
+
+        {/* Restrictions */}
+        {packageData.restrictions && packageData.restrictions.length > 0 && (
+          <View style={styles.section}>
+            <TouchableOpacity 
+              style={styles.sectionHeader}
+              onPress={toggleRestrictions}
+            >
+              <Text style={styles.sectionTitle}>⚠️ Conditions & Restrictions</Text>
+              {showRestrictions ? 
+                <ChevronUp color={Colors.text.secondary} size={20} /> : 
+                <ChevronDown color={Colors.text.secondary} size={20} />
+              }
+            </TouchableOpacity>
+            
+            {showRestrictions && (
+              <View style={styles.sectionContent}>
+                {packageData.restrictions.map((restriction, index) => (
+                  <View key={index} style={styles.restrictionItem}>
+                    <Text style={styles.restrictionIcon}>⚠️</Text>
+                    <Text style={styles.restrictionText}>{restriction}</Text>
+                  </View>
+                ))}
+              </View>
+            )}
+          </View>
+        )}
+
+        {/* Section d'achat */}
+        <View style={styles.purchaseSection}>
+          <Text style={styles.purchaseTitle}>Pour qui acheter ce forfait ?</Text>
+          
+          <View style={styles.recipientOptions}>
+            <TouchableOpacity
+              style={[
+                styles.recipientOption,
+                recipient === 'self' && styles.recipientOptionActive
+              ]}
+              onPress={() => setRecipient('self')}
+            >
+              <Text style={[
+                styles.recipientOptionText,
+                recipient === 'self' && styles.recipientOptionTextActive
+              ]}>
+                👤 Pour moi
+              </Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+              style={[
+                styles.recipientOption,
+                recipient === 'other' && styles.recipientOptionActive
+              ]}
+              onPress={() => setRecipient('other')}
+            >
+              <Text style={[
+                styles.recipientOptionText,
+                recipient === 'other' && styles.recipientOptionTextActive
+              ]}>
+                👥 Pour quelqu'un d'autre
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {recipient === 'other' && (
+            <View style={styles.phoneInputContainer}>
+              <Text style={styles.phoneInputLabel}>Numéro du bénéficiaire</Text>
+              <TextInput
+                style={styles.phoneInput}
+                placeholder="Ex: 07 12 34 56 78"
+                placeholderTextColor={Colors.text.secondary}
+                value={phoneNumber}
+                onChangeText={setPhoneNumber}
+                keyboardType="phone-pad"
+                maxLength={15}
+              />
+            </View>
+          )}
+        </View>
+      </ScrollView>
+
+      {/* Bouton d'achat fixe */}
+      <View style={[styles.fixedButtonContainer, keyboardVisible && styles.fixedButtonKeyboard]}>
+        <TouchableOpacity
+          style={[styles.purchaseButton, { backgroundColor: packageData.color }]}
+          onPress={handlePurchase}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.purchaseButtonText}>
+            💳 Acheter - {formatXOF(packageData.price)}
+          </Text>
+        </TouchableOpacity>
+      </View>
     </KeyboardAvoidingView>
   );
 }
@@ -404,276 +902,310 @@ export default function PackageDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background.default,
-  },
-  errorContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: Layout.spacing.xl,
-  },
-  errorText: {
-    fontFamily: 'Poppins-SemiBold',
-    fontSize: FontSizes.lg,
-    color: Colors.text.primary,
-    marginTop: Layout.spacing.md,
-    marginBottom: Layout.spacing.lg,
-  },
-  backButton: {
-    backgroundColor: Colors.secondary.main,
-    paddingVertical: Layout.spacing.md,
-    paddingHorizontal: Layout.spacing.xl,
-    borderRadius: Layout.borderRadius.md,
-  },
-  backButtonText: {
-    fontFamily: 'Poppins-Medium',
-    fontSize: FontSizes.md,
-    color: Colors.common.white,
+    backgroundColor: '#F8FAFC',
   },
   scrollView: {
     flex: 1,
   },
-  scrollViewContent: {
-    paddingHorizontal: Layout.spacing.lg,
-    paddingBottom: 120,
+  scrollContent: {
+    paddingBottom: 100,
+  },
+  scrollContentKeyboard: {
+    paddingBottom: 200,
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 32,
+  },
+  errorText: {
+    fontFamily: 'Poppins-SemiBold',
+    fontSize: 18,
+    color: Colors.error.main,
+    marginTop: 16,
+    marginBottom: 24,
+  },
+  backButton: {
+    backgroundColor: Colors.primary.main,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+  },
+  backButtonText: {
+    fontFamily: 'Poppins-SemiBold',
+    fontSize: 16,
+    color: '#FFFFFF',
   },
   packageHeader: {
+    margin: 16,
+    padding: 20,
+    borderRadius: 16,
+    backgroundColor: '#FFFFFF',
+  },
+  headerTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 16,
+  },
+  operatorSection: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: Layout.spacing.lg,
+    gap: 8,
   },
-  operatorLogoContainer: {
-    width: 60,
-    height: 60,
-    borderRadius: Layout.borderRadius.md,
-    backgroundColor: Colors.background.paper,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: Layout.spacing.sm,
-    marginRight: Layout.spacing.md,
-    shadowColor: Colors.grey[800],
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+  operatorBadge: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
   },
-  operatorLogo: {
-    width: '100%',
-    height: '100%',
-  },
-  packageTitleContainer: {
-    flex: 1,
-  },
-  packageName: {
-    fontFamily: 'Poppins-SemiBold',
-    fontSize: FontSizes.xl,
-    color: Colors.text.primary,
-  },
-  operatorName: {
-    fontFamily: 'Roboto-Regular',
-    fontSize: FontSizes.md,
-    color: Colors.text.secondary,
+  operatorText: {
+    fontFamily: 'Poppins-Bold',
+    fontSize: 12,
+    color: '#FFFFFF',
+    textTransform: 'uppercase',
   },
   popularBadge: {
-    backgroundColor: Colors.primary.main,
-    paddingHorizontal: Layout.spacing.sm,
-    paddingVertical: Layout.spacing.xs,
-    borderRadius: Layout.borderRadius.sm,
+    backgroundColor: '#FFD700',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
   },
   popularText: {
-    fontFamily: 'Roboto-Medium',
-    fontSize: FontSizes.sm,
-    color: Colors.primary.contrastText,
-  },
-  detailsCard: {
-    backgroundColor: Colors.background.paper,
-    borderRadius: Layout.borderRadius.md,
-    padding: Layout.spacing.lg,
-    marginBottom: Layout.spacing.lg,
-    shadowColor: Colors.grey[800],
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  descriptionText: {
-    fontFamily: 'Roboto-Regular',
-    fontSize: FontSizes.md,
-    color: Colors.text.secondary,
-    marginBottom: Layout.spacing.lg,
-  },
-  featureGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginBottom: Layout.spacing.lg,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.grey[200],
-    paddingBottom: Layout.spacing.lg,
-  },
-  featureItem: {
-    width: '50%',
-    marginBottom: Layout.spacing.md,
-  },
-  featureValue: {
     fontFamily: 'Poppins-SemiBold',
-    fontSize: FontSizes.lg,
+    fontSize: 10,
+    color: '#000000',
+  },
+  cardButton: {
+    backgroundColor: '#F0F0F0',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+  },
+  cardButtonText: {
+    fontFamily: 'Poppins-Medium',
+    fontSize: 12,
     color: Colors.text.primary,
   },
-  featureLabel: {
-    fontFamily: 'Roboto-Regular',
-    fontSize: FontSizes.sm,
+  packageName: {
+    fontFamily: 'Poppins-Bold',
+    fontSize: 22,
+    color: Colors.text.primary,
+    marginBottom: 8,
+  },
+  packageDescription: {
+    fontFamily: 'Poppins-Regular',
+    fontSize: 14,
     color: Colors.text.secondary,
+    lineHeight: 20,
+    marginBottom: 16,
   },
-  viewCardButton: {
-    backgroundColor: Colors.secondary.light,
-    paddingVertical: Layout.spacing.md,
+  bonusContainer: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+  },
+  bonusText: {
+    fontFamily: 'Poppins-SemiBold',
+    fontSize: 12,
+  },
+  mainInfoContainer: {
+    backgroundColor: '#FFFFFF',
+    margin: 16,
+    marginTop: 0,
+    borderRadius: 16,
+    padding: 20,
+  },
+  infoGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  infoItem: {
+    width: '48%',
     alignItems: 'center',
-    borderRadius: Layout.borderRadius.md,
-    marginBottom: Layout.spacing.lg,
+    marginBottom: 20,
   },
-  viewCardText: {
+  infoLabel: {
     fontFamily: 'Poppins-Medium',
-    fontSize: FontSizes.md,
-    color: Colors.secondary.main,
+    fontSize: 12,
+    color: Colors.text.secondary,
+    marginTop: 8,
+    marginBottom: 4,
   },
-  accordionHeader: {
+  infoValue: {
+    fontFamily: 'Poppins-Bold',
+    fontSize: 16,
+  },
+  smsIcon: {
+    fontSize: 20,
+  },
+  priceContainer: {
+    backgroundColor: '#FFFFFF',
+    margin: 16,
+    marginTop: 0,
+    borderRadius: 16,
+    padding: 20,
+    alignItems: 'center',
+  },
+  priceLabel: {
+    fontFamily: 'Poppins-Medium',
+    fontSize: 14,
+    color: Colors.text.secondary,
+    marginBottom: 8,
+  },
+  priceValue: {
+    fontFamily: 'Poppins-Bold',
+    fontSize: 28,
+  },
+  section: {
+    backgroundColor: '#FFFFFF',
+    margin: 16,
+    marginTop: 0,
+    borderRadius: 16,
+    padding: 20,
+  },
+  sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: Layout.spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.grey[200],
+    marginBottom: 16,
   },
-  accordionTitle: {
-    fontFamily: 'Poppins-Medium',
-    fontSize: FontSizes.md,
+  sectionTitle: {
+    fontFamily: 'Poppins-SemiBold',
+    fontSize: 16,
     color: Colors.text.primary,
   },
-  featuresList: {
-    paddingVertical: Layout.spacing.md,
+  sectionContent: {
+    gap: 12,
   },
-  featureRow: {
+  featureItem: {
     flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: Layout.spacing.sm,
+    alignItems: 'flex-start',
+    gap: 12,
+  },
+  featureIcon: {
+    color: '#4CAF50',
+    fontWeight: 'bold',
+    fontSize: 16,
+    marginTop: 2,
   },
   featureText: {
-    fontFamily: 'Roboto-Regular',
-    fontSize: FontSizes.md,
+    fontFamily: 'Poppins-Regular',
+    fontSize: 14,
     color: Colors.text.primary,
-    marginLeft: Layout.spacing.sm,
+    flex: 1,
+    lineHeight: 20,
+  },
+  restrictionItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 12,
+  },
+  restrictionIcon: {
+    fontSize: 14,
+    marginTop: 2,
   },
   restrictionText: {
-    fontFamily: 'Roboto-Regular',
-    fontSize: FontSizes.md,
-    color: Colors.text.primary,
-    marginLeft: Layout.spacing.sm,
+    fontFamily: 'Poppins-Regular',
+    fontSize: 14,
+    color: Colors.text.secondary,
+    flex: 1,
+    lineHeight: 20,
   },
-  recipientCard: {
-    backgroundColor: Colors.background.paper,
-    borderRadius: Layout.borderRadius.md,
-    padding: Layout.spacing.lg,
-    marginBottom: Layout.spacing.lg,
-    shadowColor: Colors.grey[800],
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+  purchaseSection: {
+    backgroundColor: '#FFFFFF',
+    margin: 16,
+    marginTop: 0,
+    borderRadius: 16,
+    padding: 20,
   },
-  recipientTitle: {
-    fontFamily: 'Poppins-Medium',
-    fontSize: FontSizes.md,
+  purchaseTitle: {
+    fontFamily: 'Poppins-SemiBold',
+    fontSize: 16,
     color: Colors.text.primary,
-    marginBottom: Layout.spacing.md,
+    marginBottom: 16,
   },
   recipientOptions: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: Layout.spacing.md,
+    gap: 12,
+    marginBottom: 16,
   },
   recipientOption: {
     flex: 1,
-    paddingVertical: Layout.spacing.md,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    backgroundColor: '#F8FAFC',
+    borderWidth: 2,
+    borderColor: '#E2E8F0',
     alignItems: 'center',
-    borderRadius: Layout.borderRadius.md,
-    borderWidth: 1,
-    borderColor: Colors.grey[300],
-    marginHorizontal: Layout.spacing.xs,
   },
-  activeRecipientOption: {
-    backgroundColor: Colors.primary.light,
+  recipientOptionActive: {
+    backgroundColor: Colors.primary.main + '15',
     borderColor: Colors.primary.main,
   },
   recipientOptionText: {
-    fontFamily: 'Roboto-Medium',
-    fontSize: FontSizes.md,
-    color: Colors.text.primary,
+    fontFamily: 'Poppins-Medium',
+    fontSize: 14,
+    color: Colors.text.secondary,
   },
-  activeRecipientOptionText: {
+  recipientOptionTextActive: {
     color: Colors.primary.main,
+    fontFamily: 'Poppins-SemiBold',
   },
   phoneInputContainer: {
-    marginTop: Layout.spacing.md,
+    marginTop: 8,
   },
   phoneInputLabel: {
-    fontFamily: 'Roboto-Regular',
-    fontSize: FontSizes.md,
-    color: Colors.text.secondary,
-    marginBottom: Layout.spacing.sm,
+    fontFamily: 'Poppins-Medium',
+    fontSize: 14,
+    color: Colors.text.primary,
+    marginBottom: 8,
   },
   phoneInput: {
-    backgroundColor: Colors.background.default,
-    borderRadius: Layout.borderRadius.md,
+    backgroundColor: '#F8FAFC',
     borderWidth: 1,
-    borderColor: Colors.grey[300],
-    paddingHorizontal: Layout.spacing.md,
-    paddingVertical: Layout.spacing.sm,
-    fontFamily: 'Roboto-Regular',
-    fontSize: FontSizes.md,
+    borderColor: '#E2E8F0',
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    fontFamily: 'Poppins-Regular',
+    fontSize: 16,
     color: Colors.text.primary,
-    height: 50,
   },
-  purchaseBar: {
+  fixedButtonContainer: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: Colors.background.paper,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: Layout.spacing.lg,
-    paddingVertical: Layout.spacing.md,
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    paddingBottom: 24,
     borderTopWidth: 1,
-    borderTopColor: Colors.grey[200],
-    shadowColor: Colors.grey[800],
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    borderTopColor: '#E2E8F0',
   },
-  priceContainer: {
-    flex: 1,
-  },
-  priceLabel: {
-    fontFamily: 'Roboto-Regular',
-    fontSize: FontSizes.sm,
-    color: Colors.text.secondary,
-  },
-  priceValue: {
-    fontFamily: 'Poppins-Bold',
-    fontSize: FontSizes.xl,
-    color: Colors.text.primary,
+  fixedButtonKeyboard: {
+    position: 'relative',
+    borderTopWidth: 0,
+    paddingBottom: 12,
   },
   purchaseButton: {
-    backgroundColor: Colors.primary.main,
-    paddingVertical: Layout.spacing.md,
-    paddingHorizontal: Layout.spacing.xl,
-    borderRadius: Layout.borderRadius.md,
+    paddingVertical: 16,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 8,
   },
   purchaseButtonText: {
-    fontFamily: 'Poppins-SemiBold',
-    fontSize: FontSizes.md,
-    color: Colors.primary.contrastText,
+    fontFamily: 'Poppins-Bold',
+    fontSize: 18,
+    color: '#FFFFFF',
   },
 });
